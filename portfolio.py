@@ -144,21 +144,3 @@ class Stock:
         self.historic_cost -= cost_sold
 
         return ret
-
-
-# p = Portfolio()
-# p.buy_stock('AAPL', 10.0)
-# print(p.stocks['AAPL'].cost_queue)
-# print(p.stocks['AAPL'].historic_cost)
-# print()
-# p.buy_stock('AAPL', 10.0)
-# p.buy_stock('AAPL', 10.0)
-# p.buy_stock('PFE', 5.0)
-# print(p.stocks['AAPL'].cost_queue, p.stocks['PFE'].cost_queue)
-# print(p.stocks['AAPL'].historic_cost, p.stocks['PFE'].historic_cost)
-# print()
-# p.sell_stock('AAPL', 12.5)
-# p.sell_stock('PFE', 3.75)
-# print(p.stocks['AAPL'].cost_queue, p.stocks['PFE'].cost_queue)
-# print(p.stocks['AAPL'].historic_cost, p.stocks['PFE'].historic_cost)
-# print()
