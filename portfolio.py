@@ -106,10 +106,10 @@ class Portfolio:
         self.record["buyDate"].append(np.NaN)
         self.record["sellDate"].append(datetime.now().date())
         self.record["buyPrice"].append(np.NaN)
-        self.record["sellPrice"].append(s.current_price)
+        self.record["sellPrice"].append(current)
         self.record["shareVolume"].append(volume)
         self.record["cost"].append(np.NaN)
-        self.record["revenue"].append(s.current_price * volume)
+        self.record["revenue"].append(current * volume)
 
         print("Sold:", ticker)
 
