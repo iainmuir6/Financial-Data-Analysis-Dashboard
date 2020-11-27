@@ -7,6 +7,8 @@ except ModuleNotFoundError:
     import pickle
 
 from portfolio import Portfolio
+from research import largestCap
+import requests
 import os
 
 """
@@ -19,6 +21,8 @@ PORTFOLIO DIVERSIFICATION
     Indices/ETFs    (5 – 20%)
     Options         (3 – 12%)
 """
+
+api_key = 'bsm4nq7rh5rdb4arch50'
 
 '''
 PORTFOLIO A
@@ -60,7 +64,7 @@ else:
 
 '''
 PORTFOLIO B
-    Investor Signals Strategy
+    Resistance Levels Strategy
     Notes:
         ...
 '''
@@ -75,6 +79,30 @@ else:
         "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle", 'rb'))
 
     # —————————— Investment Decisions ——————————
+
+    resolution = 1
+    stocks = p.stocks.keys()
+
+    for tick in largestCap:
+        levels = requests.get('https://finnhub.io/api/v1/scan/support-resistance?symbol=' + tick + '&resolution=' +
+                              str(resolution) + '&token=' + api_key).json()['levels']
+        try:
+            s2, s1, pp, r1, r2 = levels
+        except ValueError:
+            s3, s2, s1, pp, r1, r2, r3 = levels
+
+        current = requests.get(
+            'https://finnhub.io/api/v1/quote?symbol=' + tick + '&token=' + api_key).json()['c']
+        if tick in stocks:
+            if current > r2:
+                p.sell(tick)
+            else:
+                continue
+        else:
+            if current < s2:
+                p.buy(tick)
+            else:
+                continue
 
     # ——————————----------------------——————————
 
