@@ -73,14 +73,14 @@ class Portfolio:
         self.cash -= (s.current_price * volume)
         self.update()
 
-        self.record["ticker"].append(ticker)
-        self.record["buyDate"].append(datetime.now().date())
-        self.record["sellDate"].append(np.NaN)
-        self.record["buyPrice"].append(s.current_price)
-        self.record["sellPrice"].append(np.NaN)
-        self.record["shareVolume"].append(volume)
-        self.record["cost"].append(s.historic_cost)
-        self.record["revenue"].append(np.NaN)
+        self.record = self.record.append(pd.DataFrame({'ticker': [ticker],
+                                                       "buyDate": [datetime.now().date()],
+                                                       "sellDate": [np.NaN],
+                                                       "buyPrice": [s.current_price],
+                                                       "sellPrice": [np.NaN],
+                                                       "shareVolume": [volume],
+                                                       "cost": [s.historic_cost],
+                                                       "revenue": [np.NaN]}))
 
         print("Bought:", s.company, "(" + s.ticker + ")")
 
@@ -95,22 +95,22 @@ class Portfolio:
             self.realized_return += (current * volume) - self.stocks[ticker].historic_cost
             self.stocks.pop(ticker)
             self.weight_dict.pop(ticker)
-
+        elif float(volume) > float(self.stocks[ticker].volume):
+            self.realized_return += self.stocks[ticker].subtract(self.stocks[ticker].volume)
         else:
             self.realized_return += self.stocks[ticker].subtract(volume)
 
         self.cash += (current * volume)
         self.update()
 
-        self.record["ticker"].append(ticker)
-        self.record["buyDate"].append(np.NaN)
-        self.record["sellDate"].append(datetime.now().date())
-        self.record["buyPrice"].append(np.NaN)
-        self.record["sellPrice"].append(current)
-        self.record["shareVolume"].append(volume)
-        self.record["cost"].append(np.NaN)
-        self.record["revenue"].append(current * volume)
-
+        self.record = self.record.append(pd.DataFrame({'ticker': [ticker],
+                                                       "buyDate": [np.NaN],
+                                                       "sellDate": [datetime.now().date()],
+                                                       "buyPrice": [np.NaN],
+                                                       "sellPrice": [current],
+                                                       "shareVolume": [volume],
+                                                       "cost": [np.NaN],
+                                                       "revenue": [current * volume]}))
         print("Sold:", ticker)
 
     def update(self):

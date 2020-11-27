@@ -1,17 +1,19 @@
 # Iain Muir
 # iam9ez
 
-from datetime import datetime, timedelta
 import plotly.graph_objects as go
-import plotly.express as px
+from research import largestCap
+from datetime import datetime
 import pandas as pd
 import requests
 
 api_key = 'bsm4nq7rh5rdb4arch50'
 
-resolution = 30
-levels = requests.get('https://finnhub.io/api/v1/scan/support-resistance?symbol=AAPL&resolution=' + str(resolution) +
-                      '&token=' + api_key).json()['levels']
+resolution = 60
+# for s in largestCap:
+levels = requests.get('https://finnhub.io/api/v1/scan/support-resistance?symbol=AAPL&resolution=60&token=' +
+                      api_key).json()['levels']
+
 
 s_date = datetime(2020, 9, 1)
 e_date = datetime.today()
