@@ -8,6 +8,7 @@ except ModuleNotFoundError:
 
 from portfolio import Portfolio
 from research import largestCap
+from datetime import datetime
 import requests
 import os
 
@@ -23,6 +24,15 @@ PORTFOLIO DIVERSIFICATION
 """
 
 api_key = 'bsm4nq7rh5rdb4arch50'
+
+
+def annualized_return(portfolio):
+    nominal_return = portfolio.portfolio_return / portfolio.total_cost
+    days = datetime.today().date() - portfolio.creation
+    if days == 0:
+        return None
+    return (1 + nominal_return) ** (365/days) - 1
+
 
 '''
 PORTFOLIO A
@@ -47,6 +57,7 @@ else:
     p.update()
     print("Market Value: $", p.market_value)
     print("Portfolio Return: $", p.portfolio_return)
+    print("Annualized Return:", annualized_return(p), "%")
     print("Remaining Cash: $", p.cash)
     print()
 
@@ -109,6 +120,7 @@ else:
     p.update()
     print("Market Value: $", p.market_value)
     print("Portfolio Return: $", p.portfolio_return)
+    print("Annualized Return:", annualized_return(p), "%")
     print("Remaining Cash: $", p.cash)
     print()
 

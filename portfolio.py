@@ -1,19 +1,34 @@
 # Iain Muir
 # iam9ez
 
-import pandas as pd
-import requests
 from collections import deque
+from datetime import datetime
+import pandas as pd
+import numpy as np
+import requests
 
 api_key = 'bsm4nq7rh5rdb4arch50'
 
 
 class Portfolio:
     def __init__(self):
+        """
+        :argument self.creation – date the portfolio was created
+        :argument self.cash – amount of funds remaining
+        :argument self.market_value – current market value of the portfolio
+        :argument self.portfolio_return – current nominal return (sum of profits - sum of costs)
+        :argument self.realized_return – amount of nominal return cashed out
+        :argument self.total_cost – amount of money invested
+        :argument self.stocks – dictionary of stocks within portfolio
+        :argument self.weight_dict – breakdown of the portfolio
+        :argument self.record – DataFrame that tracks portfolio changes
+        """
+        self.creation = datetime.today().date()
         self.cash = 0.0
         self.market_value = 0.0
         self.portfolio_return = 0.0
         self.realized_return = 0.0
+        self.total_cost = 0.0
         self.stocks = {}
         self.weight_dict = {}
         self.record = pd.DataFrame({'ticker': [],
@@ -34,10 +49,14 @@ class Portfolio:
         else:
             self.cash -= float(amount)
 
-    def buy(self, ticker, volume=1.0):
+    def buy(self, ticker, volume=1.0, cost=None):
         if self.cash == 0.0:
             print("NO FUNDS")
             return
+
+        if cost is not None:
+            volume = cost / (requests.get('https://finnhub.io/api/v1/quote?symbol=' +
+                                          ticker + '&token=' + api_key).json()['c'])
 
         s = Stock(ticker, volume)
 
@@ -54,18 +73,23 @@ class Portfolio:
         self.cash -= (s.current_price * volume)
         self.update()
 
-        # self.record["ticker"].append(ticker)
-        # self.record["buyDate"].append(datetime.now().date())
-        # self.record["sellDate"].append(np.NaN)
-        # self.record["buyPrice"].append(s.current_price)
-        # self.record["sellPrice"].append(np.NaN)
-        # self.record["shareVolume"].append(volume)
-        # self.record["cost"].append(s.historic_cost)
-        # self.record["revenue"].append(np.NaN)
+        self.record["ticker"].append(ticker)
+        self.record["buyDate"].append(datetime.now().date())
+        self.record["sellDate"].append(np.NaN)
+        self.record["buyPrice"].append(s.current_price)
+        self.record["sellPrice"].append(np.NaN)
+        self.record["shareVolume"].append(volume)
+        self.record["cost"].append(s.historic_cost)
+        self.record["revenue"].append(np.NaN)
 
-    def sell(self, ticker, volume=1.0):
+        print("Bought:", s.company, "(" + s.ticker + ")")
+
+    def sell(self, ticker, volume=1.0, cost=None):
         current = requests.get(
             'https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()['c']
+
+        if cost is not None:
+            volume = cost / current
 
         if float(volume) == float(self.stocks[ticker].volume):
             self.realized_return += (current * volume) - self.stocks[ticker].historic_cost
@@ -78,14 +102,16 @@ class Portfolio:
         self.cash += (current * volume)
         self.update()
 
-        # self.record["ticker"].append(ticker)
-        # self.record["buyDate"].append(np.NaN)
-        # self.record["sellDate"].append(datetime.now().date())
-        # self.record["buyPrice"].append(np.NaN)
-        # self.record["sellPrice"].append(s.current_price)
-        # self.record["shareVolume"].append(volume)
-        # self.record["cost"].append(np.NaN)
-        # self.record["revenue"].append(s.current_price * volume)
+        self.record["ticker"].append(ticker)
+        self.record["buyDate"].append(np.NaN)
+        self.record["sellDate"].append(datetime.now().date())
+        self.record["buyPrice"].append(np.NaN)
+        self.record["sellPrice"].append(s.current_price)
+        self.record["shareVolume"].append(volume)
+        self.record["cost"].append(np.NaN)
+        self.record["revenue"].append(s.current_price * volume)
+
+        print("Sold:", ticker)
 
     def update(self):
         for stock in self.stocks.values():
@@ -95,6 +121,7 @@ class Portfolio:
 
         self.market_value = round(sum(list(map(lambda s: s.current_price * s.volume, self.stocks.values()))), 2)
         self.portfolio_return = round(sum(list(map(lambda s: s.profit, self.stocks.values()))), 2)
+        self.total_cost = round(sum(list(map(lambda s: s.historic_cost, self.stocks.values()))), 2)
 
         for stock in self.stocks.values():
             self.weight_dict[stock.ticker] = round((stock.current_price * stock.volume) / self.market_value, 2)
