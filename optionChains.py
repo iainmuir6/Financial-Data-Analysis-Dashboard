@@ -31,7 +31,12 @@ def graph_option(data, price):
         else:
             y.append((dollar * 100) - (break_even * 100))
 
-    plt.plot(x, y, color='b')
+    # profit = ['g' if p > 0 else 'r' for p in y]
+    # profit = [(0, 1, 0) if p > 0 else (1, 0, 0) for p in y]
+    # plt.plot(x, y, color=profit)
+
+    plt.plot(x, y)
+    plt.axvline(x=current_price, linestyle='dotted')
     plt.plot(x, [0 for _ in range(len(x))], color='black', linewidth=2)
     plt.show()
 

@@ -61,3 +61,17 @@ largestCap = ['BA', 'DOW', 'AXP', 'CSCO', 'JNJ', 'GS', 'IBM', 'JPM', 'WMT', 'TRV
 smallCap = []
 foreign = []
 funds = []
+
+industries = {'Industrial Conglomerates': [('3M', 'MMM'), ('Caterpillar', 'CAT'), ('Boeing', 'BA')],
+              'Financial Services': [('American Express', 'AXP'), ('Goldman Sachs', 'GS'), ('JP Morgan', 'JPM')],
+              'Technology': [('Apple', 'AAPL'), ('IBM', 'IBM'), ('Microsoft', 'MSFT'),
+                             ('Visa', 'V'), ('Intel', 'INTC')],
+              'Energy ': [('Chevy', 'CVX')],
+              'Communications': [('Cisco', 'CSCO'), ('Verizon', 'VZ'), ('Disney', 'DIS')],
+              'Materials': [('Exxon', 'ZOM'), ('Johnson & Johnson', 'JNJ'), ('Merck', 'MRK'),
+                            ('Pfizer', 'PFE'), ('Dow Chemical', 'DOW')],
+              'Consumer Staples': [('P&G', 'PG'), ('Home Depot', 'HD'), ('Wal-Mart', 'WMT'), ('Walgreen', 'WBA')],
+              'Consumer Discretionary': [('Coke', 'KO'), ('Nike', 'NKE'), ("McDonald's", 'MCD')],
+              'Real Estate': [('Travelers Companies Inc', 'TRV')],
+              'Health Care': [('UnitedHealth', 'UNH')],
+              'Utilities': []}
