@@ -6,9 +6,9 @@ try:
 except ModuleNotFoundError:
     import pickle
 
+from datetime import datetime, timedelta
 from portfolio import Portfolio
 from research import largestCap
-from datetime import datetime
 import requests
 import os
 
@@ -32,6 +32,34 @@ def annualized_return(portfolio):
         return None
     nominal_return = portfolio.portfolio_return / portfolio.total_cost
     return (1 + nominal_return) ** (365 / days) - 1
+
+
+def support_resistance(tick):
+    """
+    Pivot Point = (High + Low + Close) / 3
+    Resistance Level 1 = 2 * Pivot Point – Low
+    Support Level 1 = 2 * Pivot Point – High
+    Resistance Level 2 = (Pivot Point – Support Level 1) + Resistance Level 1
+    Support Level 2 = Pivot Point – (Resistance Level 1 – Support Level 1)
+    Resistance Level 3 = (Pivot Point – Support Level 2) + Resistance Level 2
+    Support Level 3 = Pivot Point – (Resistance Level 2 – Support Level 2)
+    """
+    candle = requests.get(
+        'https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&from=' +
+        str(int((datetime.today() - timedelta(days=30)).timestamp())) +
+        '&to=' + str(int((datetime.today()).timestamp())) + '&token=' + api_key).json()
+
+    high = max(candle['h'])
+    low = min(candle['l'])
+    close = candle['c'][0]
+    pivot_point = (high + low + close) / 3
+    resistance1 = 2 * pivot_point - low
+    support1 = 2 * pivot_point - high
+    resistance2 = (pivot_point - support1) + resistance1
+    support2 = pivot_point - (resistance1 - support1)
+    resistance3 = (pivot_point - support2) + resistance2
+    support3 = pivot_point - (resistance2 - support2)
+    return [support3, support2, support1, pivot_point, resistance1, resistance2, resistance3]
 
 
 '''
@@ -95,25 +123,12 @@ else:
     stocks = p.stocks.keys()
 
     for tick in largestCap:
-        levels = requests.get('https://finnhub.io/api/v1/scan/support-resistance?symbol=' + tick +
-                              '&resolution=D&token=' + api_key).json()['levels']
-        length = len(levels)
-        if length == 4:
-            s2, s1, r1, r2 = levels
-        if length == 5:
-            s2, s1, pp, r1, r2 = levels
-        if length == 6:
-            s3, s2, s1, r1, r2, r3 = levels
-        if length == 7:
-            s3, s2, s1, pp, r1, r2, r3 = levels
-        if length == 8:
-            s4, s3, s2, s1, r1, r2, r3, r4 = levels
-        if length < 4 or length > 8:
-            print(len(levels))
-            exit(0)
+        s3, s2, s1, pp, r1, r2, r3 = support_resistance(tick)
 
         current = requests.get(
             'https://finnhub.io/api/v1/quote?symbol=' + tick + '&token=' + api_key).json()['c']
+        # print(tick, "---", current, s1)
+        
         if tick in stocks:
             if current > r1:
                 p.sell(tick)
