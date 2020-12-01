@@ -2,8 +2,6 @@
 # iam9ez
 
 from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
 import requests
 import time
 
@@ -86,21 +84,28 @@ RESPONSE FORMAT:
 '''
 earnings_calendar = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
                                  str(date) + '&' + str(date + timedelta(days=30)) + '&token=' + api_key).json()
-for event in earnings_calendar['earningsCalendar']:
-    print(event['symbol'] + " (Q" + str(event['quarter']) + " " + str(event['year']) + ")" +
-          "\n\t EPS Actual vs. Expected: ", event['epsActual'], "vs.", str(round(event['epsEstimate'], 2)) +
-          "\n\t Revenue Actual vs. Expected: ",
-          money_string(event['revenueActual']), "vs.", money_string(event['revenueEstimate']))
-print()
 
-for ipo in ipo_calendar['ipoCalendar']:
-    try:
-        if ipo['totalSharesValue'] > 50000000:
-            print(ipo['date'], ipo['name'].title(), '(' + ipo['symbol'] +
-                  ')  ---  Valuation:', money_string(ipo['totalSharesValue']))
-    except TypeError:
-        print(ipo['date'], ipo['name'].title())
-print()
+'''
+RESPONSE FORMAT:
+[
+  {
+    "buy": int,
+    "hold": int,
+    "period": str (date – first of month),
+    "sell": int,
+    "strongBuy": int,
+    "strongSell": int,
+    "symbol": str
+  },
+  ...
+]
+  
+'''
+analyst_sentiments = requests.get('https://finnhub.io/api/v1/stock/recommendation?symbol=' +
+                                  ticker + '&token=' + api_key).json()[:2]
+print(analyst_sentiments)
+
+exit(0)
 
 for news in market_news:
     if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
@@ -118,6 +123,22 @@ for news in company_news:
 
         print(datetime.fromtimestamp(news['datetime']).date(), news['headline'],
               "(" + news['source'] + ") \n\t url: " + news['url'])
+print()
+
+for ipo in ipo_calendar['ipoCalendar']:
+    try:
+        if ipo['totalSharesValue'] > 50000000:
+            print(ipo['date'], ipo['name'].title(), '(' + ipo['symbol'] +
+                  ')  ---  Valuation:', money_string(ipo['totalSharesValue']))
+    except TypeError:
+        print(ipo['date'], ipo['name'].title())
+print()
+
+for event in earnings_calendar['earningsCalendar']:
+    print(event['symbol'] + " (Q" + str(event['quarter']) + " " + str(event['year']) + ")" +
+          "\n\t EPS Actual vs. Expected: ", event['epsActual'], "vs.", str(round(event['epsEstimate'], 2)) +
+          "\n\t Revenue Actual vs. Expected: ",
+          money_string(event['revenueActual']), "vs.", money_string(event['revenueEstimate']))
 print()
 
 print('\n   --- Finished in %s seconds ---' % round(time.time() - start, 4))
