@@ -31,7 +31,7 @@ def annualized_return(portfolio):
     if days == 0 or portfolio.total_cost == 0:
         return None
     nominal_return = portfolio.portfolio_return / portfolio.total_cost
-    return (1 + nominal_return) ** (365 / days) - 1
+    return (1 + nominal_return) ** (365 / days.days) - 1
 
 
 def support_resistance(tick):
@@ -61,6 +61,41 @@ def support_resistance(tick):
     support3 = pivot_point - (resistance2 - support2)
     return [support3, support2, support1, pivot_point, resistance1, resistance2, resistance3]
 
+
+'''
+ACTUAL PORTFOLIO
+'''
+if not os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/actualPortfolio.pickle"):
+    p = Portfolio()
+    pickle.dump(p, open(
+        "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/actualPortfolio.pickle", 'wb'))
+    print('Successfully created your portfolio!')
+
+else:
+    p = pickle.load(open(
+        "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/actualPortfolio.pickle", 'rb'))
+
+    # —————————— Investment Decisions ——————————
+
+    # ——————————----------------------——————————
+
+    p.update()
+    print("Market Value: $", p.market_value)
+    print("Portfolio Return: $", p.portfolio_return)
+    print("Annualized Return:", annualized_return(p), "%")
+    print("Remaining Cash: $", p.cash)
+    print()
+
+    for each in p.stocks.values():
+        print(each.company)
+        print('\t Ticker: ' + str(each.ticker) + '\n',
+              '\t  Price: $' + str(each.current_price) + '\n',
+              '\t   Cost: $' + str(each.historic_cost) + '\n',
+              '\t Shares: ' + str(each.volume) + '\n',
+              '\t Profit: $' + str(each.profit) + '\n')
+
+    pickle.dump(p, open(
+        "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/actualPortfolio.pickle", 'wb'))
 
 '''
 PORTFOLIO A
@@ -120,25 +155,26 @@ else:
     # —————————— Investment Decisions ——————————
 
     # resolution = 30
-    stocks = p.stocks.keys()
 
-    for tick in largestCap:
-        s3, s2, s1, pp, r1, r2, r3 = support_resistance(tick)
-
-        current = requests.get(
-            'https://finnhub.io/api/v1/quote?symbol=' + tick + '&token=' + api_key).json()['c']
-        # print(tick, "---", current, s1)
-        
-        if tick in stocks:
-            if current > r1:
-                p.sell(tick)
-            else:
-                continue
-        else:
-            if current < s1:
-                p.buy(tick)
-            else:
-                continue
+    # stocks = p.stocks.keys()
+    #
+    # for tick in largestCap:
+    #     s3, s2, s1, pp, r1, r2, r3 = support_resistance(tick)
+    #
+    #     current = requests.get(
+    #         'https://finnhub.io/api/v1/quote?symbol=' + tick + '&token=' + api_key).json()['c']
+    #     # print(tick, "---", current, s1)
+    #
+    #     if tick in stocks:
+    #         if current > r1:
+    #             p.sell(tick)
+    #         else:
+    #             continue
+    #     else:
+    #         if current < s1:
+    #             p.buy(tick)
+    #         else:
+    #             continue
 
     # ——————————----------------------——————————
 
