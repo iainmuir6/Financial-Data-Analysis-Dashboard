@@ -1,7 +1,9 @@
 # Iain Muir
 # iam9ez
 
+from bs4 import BeautifulSoup
 import streamlit as st
+import requests
 import pickle
 import os
 
@@ -19,9 +21,20 @@ if os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolio
 
     stocks_col.subheader("Current Portfolio")
     for stock in p.stocks.values():
-        print(stock.logo)
-        stocks_col.markdown("<img src='" + stock.logo + "' height='40' /> " + stock.company + " (" + stock.ticker +
-                            ")  -  $" + str(stock.current_price), unsafe_allow_html=True)
+        logo = stock.logo
+        height = '50'
+        if logo == "":
+            try:
+                url = "https://en.wikipedia.org/wiki/" + stock.company.replace(" ", "_")
+                page = requests.get(url)
+                soup = BeautifulSoup(page.content, "html.parser")
+                logo = "https://" + soup.find("table", class_='infobox vcard').tbody.tr.td.a.img['src']
+                height = '20'
+            except (Exception, ValueError) as e:
+                print("Could not find logo...")
+
+        stocks_col.markdown("<img src='" + logo + "' height='" + height + "' /> " + stock.company + " (" +
+                            stock.ticker + ")  -  $" + str(stock.current_price), unsafe_allow_html=True)
 
     graph_col.subheader("Market Value: $" + str(p.market_value))
 
