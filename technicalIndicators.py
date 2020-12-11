@@ -12,6 +12,7 @@ Five Categories of Technical Indicators:
 import matplotlib.pyplot as plt
 from datetime import datetime
 import mplfinance as fplt
+import pandas as pd
 import requests
 
 
@@ -21,9 +22,19 @@ class TechnicalIndicators:
         self.ticker = ticker
         self.start_date = datetime(datetime.today().year - 2, 1, 1)
         self.end_date = datetime.today()
-        self.candles = requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
-                                    'from=' + str(int(self.start_date.timestamp())) +
-                                    '&to=' + str(int(self.end_date.timestamp())) + '&token=' + self.token).json()
+        df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
+                                       'from=' + str(int(self.start_date.timestamp())) +
+                                       '&to=' + str(int(self.end_date.timestamp())) +
+                                       '&token=' + self.token).json()).drop(axis=1, labels='s')
+        df = pd.DataFrame({
+            'Date': pd.to_datetime(df['t']),
+            'Open': df['o'],
+            'High': df['h'],
+            'Low': df['l'],
+            'Close': df['c'],
+            'Volume': df['v'],
+        })
+        self.candles = df.set_index('Date')
 
     def trend_indicator(self):
         """
@@ -41,7 +52,20 @@ class TechnicalIndicators:
                                      'from=' + str(int(self.start_date.timestamp())) +
                                      '&to=' + str(int(self.end_date.timestamp())) +
                                      '&indicator=ema&timeperiod=200&token=' + self.token).json()
-        plt.plot()
+        fplt.plot(
+            data=self.candles,
+            type='candle',
+            style='charles',
+            title=self.ticker + " (" + str(self.start_date.date()) + " - " + str(self.end_date.date()) + ")",
+            ylabel='Price ($)',
+            volume=True,
+            mav=(50, 200),
+            ylabel_lower='Shares \n Traded'
+        )
+
+        # plt.plot(fifty['c'], color='black')
+        # plt.plot(two_hundo['c'], color='red')
+        # plt.show()
 
     def mean_reversion(self):
         """
@@ -71,7 +95,6 @@ class TechnicalIndicators:
         plt.show()
 
 
-
-
-
-
+t = TechnicalIndicators('AAPL')
+t.trend_indicator()
+t.mean_reversion()
