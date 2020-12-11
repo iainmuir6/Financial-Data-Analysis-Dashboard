@@ -1,11 +1,28 @@
-# Iain Muir
-# iam9ez
+"""
+Iain Muir, iam9ez
 
+---------------------- BOLLINGER BANDS ----------------------
+                            bbands
+(20, 2): 20 days, 2 standard deviations
+
+Return:
+    {
+        'c': [$, ...],
+        'h': [$, ...],
+        'l': [$, ...],
+        'lowerband': [$, ...],
+        'middleband': [$, ...],
+        'upperband': [$, ...]
+    }
+
+"""
 import matplotlib.pyplot as plt
 from datetime import datetime
 import requests
 
 api_key = 'bsm4nq7rh5rdb4arch50'
+
+
 
 delta = 20
 d1 = datetime(2020, 1, 1)
