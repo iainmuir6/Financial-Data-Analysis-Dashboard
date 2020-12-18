@@ -15,7 +15,7 @@ PAGES = {
     "Market News": marketNews.news(),
     "Portfolio": portfolioDashboard.portfolio(),
     "Stock Charts": stockCharts.charts(),
-    "Option Chains": optionChains,
+    "Option Chains": optionChains.chain(),
     "Technical Indicators": technicalIndicators
 }
 
