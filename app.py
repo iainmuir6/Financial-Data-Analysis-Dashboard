@@ -13,8 +13,8 @@ import technicalIndicators
 PAGES = {
     "Home": home.welcome(),
     "Market News": marketNews.news(),
-    "Portfolio": portfolioDashboard,
-    "Stock Charts": stockCharts,
+    "Portfolio": portfolioDashboard.portfolio(),
+    "Stock Charts": stockCharts.charts(),
     "Option Chains": optionChains,
     "Technical Indicators": technicalIndicators
 }

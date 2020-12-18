@@ -3,12 +3,11 @@
 
 import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
+import streamlit as st
 import pandas as pd
 import numpy as np
 import requests
 import re
-
-api_key = 'bsm4nq7rh5rdb4arch50'
 
 
 def graph_option(data, price):
@@ -36,13 +35,15 @@ def graph_option(data, price):
     # plt.plot(x, y, color=profit)
 
     plt.plot(x, y)
-    plt.axvline(x=current_price, linestyle='dotted')
+    plt.axvline(x=price, linestyle='dotted')
     plt.plot(x, [0 for _ in range(len(x))], color='black', linewidth=2)
     plt.show()
 
 
-if __name__ in '__main__':
-    ticker = input("Input Ticker: ")
+def chain():
+    api_key = 'bsm4nq7rh5rdb4arch50'
+
+    ticker = st.text_input("Input Ticker: ")
     url = "https://finance.yahoo.com/quote/" + ticker + "/options"
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
