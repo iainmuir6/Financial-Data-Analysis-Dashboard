@@ -21,7 +21,7 @@ class TechnicalIndicators:
     def __init__(self, ticker):
         self.token = 'bsm4nq7rh5rdb4arch50'
         self.ticker = ticker
-        self.start_date = datetime(datetime.today().year - 2, 1, 1)
+        self.start_date = datetime(datetime.today().year - 1, 1, 1)
         self.end_date = datetime.today()
         df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
                                        'from=' + str(int(self.start_date.timestamp())) +
@@ -53,7 +53,7 @@ class TechnicalIndicators:
                                      'from=' + str(int(self.start_date.timestamp())) +
                                      '&to=' + str(int(self.end_date.timestamp())) +
                                      '&indicator=ema&timeperiod=200&token=' + self.token).json()
-        fplt.plot(
+        fig = fplt.plot(
             data=self.candles,
             type='candle',
             style='charles',
@@ -61,12 +61,15 @@ class TechnicalIndicators:
             ylabel='Price ($)',
             volume=True,
             mav=(50, 200),
-            ylabel_lower='Shares \n Traded'
+            ylabel_lower='Shares \n Traded',
+            block=False
         )
 
         # plt.plot(fifty['c'], color='black')
         # plt.plot(two_hundo['c'], color='red')
         # plt.show()
+
+        return fig
 
     def mean_reversion(self):
         """
@@ -96,11 +99,28 @@ class TechnicalIndicators:
         plt.show()
 
 
-# Robinhood and Yahoo Finance Images
 # Markdown Tags
+st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
+            "height='20'/> <img src='https://img.shields.io/badge/implementation-streamlit-orange' "
+            "height='20'/> </center>", unsafe_allow_html=True)
+# Logos
+st.markdown("<center> <img src='https://upload.wikimedia.org/wikipedia/en/d/da/Robinhood_%28company%29_logo.svg' "
+            "height='50'/> <img src='https://upload.wikimedia.org/wikipedia/commons/d/da/Yahoo_Finance_Logo_2019.svg' "
+            "height='125'/> </center>", unsafe_allow_html=True)
+st.write()      # Spacing
+st.markdown("<h1 style='text-align:center;'> Marketplace Information </h1>", unsafe_allow_html=True)
+st.write()      # Spacing
+
+# Inputs
 ticker = st.text_input("Input Ticker: ")
 date = st.selectbox("Expiration Date: ", ['December 18th', 'January 15th'])
-st.write(ticker, date)
+
 t = TechnicalIndicators('AAPL')
-t.trend_indicator()
-t.mean_reversion()
+
+# Navigation
+st.sidebar.title("Techincal Indicators")
+
+# st.set_option('deprecation.showPyplotGlobalUse', False)
+# st.pyplot(t.trend_indicator())
+
+# t.mean_reversion()
