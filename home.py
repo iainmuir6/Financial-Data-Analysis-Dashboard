@@ -3,6 +3,6 @@
 
 import streamlit as st
 
-
-def welcome():
-    print("hi")
+if __name__ == "__main__":
+    def welcome():
+        print("hi")
