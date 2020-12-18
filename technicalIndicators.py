@@ -12,6 +12,7 @@ Five Categories of Technical Indicators:
 import matplotlib.pyplot as plt
 from datetime import datetime
 import mplfinance as fplt
+import streamlit as st
 import pandas as pd
 import requests
 
@@ -95,6 +96,11 @@ class TechnicalIndicators:
         plt.show()
 
 
+# Robinhood and Yahoo Finance Images
+# Markdown Tags
+ticker = st.text_input("Input Ticker: ")
+date = st.selectbox("Expiration Date: ", ['December 18th', 'January 15th'])
+st.write(ticker, date)
 t = TechnicalIndicators('AAPL')
 t.trend_indicator()
 t.mean_reversion()
