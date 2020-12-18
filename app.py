@@ -11,12 +11,12 @@ import portfolioDashboard
 import technicalIndicators
 
 PAGES = {
-    "Home": home.welcome(),
+    "Home": [home, home.welcome],
     "Market News": marketNews.news(),
     "Portfolio": portfolioDashboard.portfolio(),
     "Stock Charts": stockCharts.charts(),
     "Option Chains": optionChains.chain(),
-    "Technical Indicators": technicalIndicators
+    "Technical Indicators": technicalIndicators.technical_indicators()
 }
 
 st.sidebar.title("Navigation")

@@ -2,6 +2,7 @@
 # iam9ez
 
 from datetime import datetime, timedelta
+import streamlit as st
 import requests
 import time
 
@@ -160,10 +161,12 @@ def analyst_sentiments():
 def news():
     # start = time.time()
 
-    market_news()
-    company_news()
-    earnings_calendar()
-    ipo_calendar()
-    analyst_sentiments()
+    st.write("Market News")
+
+    # market_news()
+    # company_news()
+    # earnings_calendar()
+    # ipo_calendar()
+    # analyst_sentiments()
 
     # print('\n   --- Finished in %s seconds ---' % round(time.time() - start, 4))

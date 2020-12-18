@@ -99,28 +99,29 @@ class TechnicalIndicators:
         plt.show()
 
 
-# Markdown Tags
-st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
-            "height='20'/> <img src='https://img.shields.io/badge/implementation-streamlit-orange' "
-            "height='20'/> </center>", unsafe_allow_html=True)
-# Logos
-st.markdown("<center> <img src='https://upload.wikimedia.org/wikipedia/en/d/da/Robinhood_%28company%29_logo.svg' "
-            "height='50'/> <img src='https://upload.wikimedia.org/wikipedia/commons/d/da/Yahoo_Finance_Logo_2019.svg' "
-            "height='125'/> </center>", unsafe_allow_html=True)
-st.write()      # Spacing
-st.markdown("<h1 style='text-align:center;'> Marketplace Information </h1>", unsafe_allow_html=True)
-st.write()      # Spacing
+def technical_indicators():
+    # Markdown Tags
+    st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
+                "height='20'/> <img src='https://img.shields.io/badge/implementation-streamlit-orange' "
+                "height='20'/> </center>", unsafe_allow_html=True)
+    # Logos
+    st.markdown("<center> "
+                "<img src='https://upload.wikimedia.org/wikipedia/en/d/da/Robinhood_%28company%29_logo.svg' "
+                "height='50'/> "
+                "<img src='https://upload.wikimedia.org/wikipedia/commons/d/da/Yahoo_Finance_Logo_2019.svg' "
+                "height='125'/> </center>", unsafe_allow_html=True)
+    st.write()      # Spacing
+    st.markdown("<h1 style='text-align:center;'> Marketplace Information </h1>", unsafe_allow_html=True)
+    st.write()      # Spacing
 
-# Inputs
-ticker = st.text_input("Input Ticker: ")
-date = st.selectbox("Expiration Date: ", ['December 18th', 'January 15th'])
 
-t = TechnicalIndicators('AAPL')
+    # Inputs
+    ticker = st.text_input("Input Ticker: ")
+    t = TechnicalIndicators(ticker)
 
-# Navigation
-st.sidebar.title("Techincal Indicators")
+    # Navigation
+    st.sidebar.title("Techincal Indicators")
 
-# st.set_option('deprecation.showPyplotGlobalUse', False)
-# st.pyplot(t.trend_indicator())
-
-# t.mean_reversion()
+    # st.set_option('deprecation.showPyplotGlobalUse', False)
+    # st.pyplot(t.trend_indicator())
+    # t.mean_reversion()
