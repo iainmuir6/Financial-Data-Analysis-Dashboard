@@ -12,7 +12,7 @@ import technicalIndicators
 
 PAGES = {
     "Home": home.welcome(),
-    "Market News": marketNews,
+    "Market News": marketNews.news(),
     "Portfolio": portfolioDashboard,
     "Stock Charts": stockCharts,
     "Option Chains": optionChains,
