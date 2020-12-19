@@ -106,6 +106,7 @@ def run():
 
     :return
     """
+    global ticker
 
     # # Markdown Tags
     # st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
@@ -149,8 +150,10 @@ def run():
                                        'from=' + str(int(s.timestamp())) +
                                        '&to=' + str(int(e.timestamp())) +
                                        '&token=' + api_key).json()).drop(axis=1, labels='s')
+        df['t'] = [datetime.fromtimestamp(x) for x in df['t']]
+
         df = pd.DataFrame({
-            'Date': pd.to_datetime(df['t']),
+            'Date': df['t'].dt.date,
             'Open': df['o'],
             'High': df['h'],
             'Low': df['l'],
@@ -170,8 +173,10 @@ def run():
 if __name__ == '__main__':
     start = time.time()
 
-    tick = input("Input Ticker: ")
-    t = TechnicalIndicators(tick)
+    ticker = input("Input Ticker: ")
+    run()
+
+    # t = TechnicalIndicators(tick)
     # st.set_option('deprecation.showPyplotGlobalUse', False)
     # st.pyplot(t.trend_indicator())
     # t.mean_reversion()

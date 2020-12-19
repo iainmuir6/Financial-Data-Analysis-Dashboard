@@ -1,9 +1,12 @@
 # Iain Muir
 # iam9ez
 
-import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+# import matplotlib.pyplot as plt
 from datetime import datetime
-import mplfinance as fplt
+import plotly.express as px
+# import mplfinance as fplt
 import streamlit as st
 import pandas as pd
 import requests
@@ -35,24 +38,65 @@ def run(data):
                                  'from=' + str(int(start_date.timestamp())) +
                                  '&to=' + str(int(end_date.timestamp())) +
                                  '&indicator=ema&timeperiod=200&token=' + token).json()
-    fig = fplt.plot(
-        data=candles,
-        type='candle',
-        style='charles',
-        title=ticker + " (" + str(start_date.date()) + " - " + str(end_date.date()) + ")",
-        ylabel='Price ($)',
-        volume=True,
-        mav=(50, 200),
-        ylabel_lower='Shares \n Traded',
-        block=True
+
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]]
     )
+    fig.add_trace(
+        go.Candlestick(
+            x=candles.index,
+            open=candles['Open'],
+            high=candles['High'],
+            low=candles['Low'],
+            close=candles['Close'],
+        ),
+        secondary_y=True
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=candles.index[-len(fifty['ema']):],
+            y=fifty['ema'],
+            mode='lines',
+            line={'color': 'rgb(0,0,0,0.5)'}
+        ),
+        secondary_y=True
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=candles.index[-len(two_hundo['ema']):],
+            y=two_hundo['ema'],
+            mode='lines',
+            line={'color': 'rgb(0,0,0,0.5)'}
+        ),
+        secondary_y=True
+    )
+    fig.add_trace(
+        go.Bar(
+            x=candles.index,
+            y=candles['Volume']
+        ),
+        secondary_y=False
+    )
+    fig.update_xaxes(
+        rangeslider_visible=True,
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(step="all")
+            ])
+        ),
+        rangebreaks=[
+            dict(bounds=["sat", "sun"])
+        ],
+        ticklabelmode="period"
+    )
+    fig.layout.yaxis2.showgrid = False
 
-    # plt.plot(fifty['c'], color='black')
-    # plt.plot(two_hundo['c'], color='red')
-    # plt.show()
-
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    st.pyplot(fig)
+    st.plotly_chart(fig)
+    fig.show()
 
 
 if __name__ == '__main__':
@@ -67,8 +111,10 @@ if __name__ == '__main__':
                                    'from=' + str(int(s.timestamp())) +
                                    '&to=' + str(int(e.timestamp())) +
                                    '&token=' + api_key).json()).drop(axis=1, labels='s')
+    df['t'] = [datetime.fromtimestamp(x) for x in df['t']]
+
     df = pd.DataFrame({
-        'Date': pd.to_datetime(df['t']),
+        'Date': df['t'].dt.date,
         'Open': df['o'],
         'High': df['h'],
         'Low': df['l'],
