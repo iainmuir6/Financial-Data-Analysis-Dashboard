@@ -8,6 +8,11 @@ def data():
     st.write("Data...")
 
 
-def charts():
+def run():
+    """
+
+    :return
+    """
+
     st.text_input("Enter Ticker: ")
     data()

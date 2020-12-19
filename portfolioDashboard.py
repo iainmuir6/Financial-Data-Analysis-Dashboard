@@ -10,7 +10,12 @@ import os
 import io
 
 
-def portfolio():
+def run():
+    """
+
+    :return
+    """
+
     if os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle"):
         p = pickle.load(open(
             "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle", 'rb'))

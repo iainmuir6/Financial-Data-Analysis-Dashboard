@@ -158,7 +158,12 @@ def analyst_sentiments():
                             ticker + '&token=' + api_key).json()[:2]
 
 
-def news():
+def run():
+    """
+
+    :return
+    """
+
     # start = time.time()
 
     st.write("Market News")

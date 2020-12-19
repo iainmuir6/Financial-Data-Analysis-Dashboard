@@ -99,7 +99,12 @@ class TechnicalIndicators:
         plt.show()
 
 
-def technical_indicators():
+def run():
+    """
+
+    :return
+    """
+
     # Markdown Tags
     st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
                 "height='20'/> <img src='https://img.shields.io/badge/implementation-streamlit-orange' "

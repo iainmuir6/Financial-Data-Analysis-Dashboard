@@ -11,14 +11,15 @@ import portfolioDashboard
 import technicalIndicators
 
 PAGES = {
-    "Home": [home, home.welcome],
-    "Market News": marketNews.news(),
-    "Portfolio": portfolioDashboard.portfolio(),
-    "Stock Charts": stockCharts.charts(),
-    "Option Chains": optionChains.chain(),
-    "Technical Indicators": technicalIndicators.technical_indicators()
+    "Home": home,
+    "Market News": marketNews,
+    "Portfolio": portfolioDashboard,
+    "Stock Charts": stockCharts,
+    "Option Chains": optionChains,
+    "Technical Indicators": technicalIndicators
 }
 
 st.sidebar.title("Navigation")
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))
-function = PAGES[selection]
+page = PAGES[selection]
+page.run()
