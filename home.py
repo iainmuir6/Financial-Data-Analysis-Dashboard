@@ -22,3 +22,7 @@ def run():
     st.write()  # Spacing
     st.markdown("<h1 style='text-align:center;'> Marketplace Information </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
+
+
+if __name__ == '__main__':
+    run()

@@ -110,3 +110,7 @@ def run():
 
         c.dataframe(call_df[['strike', 'lastPrice', 'volume', 'inTheMoney']].style.apply(highlight, axis=1))
         p.dataframe(put_df[['strike', 'lastPrice', 'volume', 'inTheMoney']].style.apply(highlight, axis=1))
+
+
+if __name__ == '__main__':
+    run()

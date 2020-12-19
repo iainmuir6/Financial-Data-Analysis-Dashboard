@@ -67,3 +67,7 @@ def run():
         st.write("\nHere are the contents of the portfolioPickles folder:")
         for file in os.listdir("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/"):
             st.write("\t" + file)
+
+
+if __name__ == '__main__':
+    run()

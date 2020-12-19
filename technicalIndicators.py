@@ -9,6 +9,7 @@ Five Categories of Technical Indicators:
       Momentum
 """
 
+from techIndicatorFolder import trendIndicator, meanReversion, relativeStrength, volume, momentum
 import matplotlib.pyplot as plt
 from datetime import datetime
 import mplfinance as fplt
@@ -123,10 +124,29 @@ def run():
     # Navigation
     st.sidebar.title("Techincal Indicators")
 
-    # Inputs
+    pages = {
+        "Trend Indicators": trendIndicator,
+        "Mean Reversion": meanReversion,
+        "Relative Strength": relativeStrength,
+        "Volume": volume,
+        "Momentum": momentum,
+    }
+
+    st.sidebar.title("Navigation")
+    selection = st.sidebar.radio("Go to", list(pages.keys()))
+    page = pages[selection]
+
     ticker = st.text_input("Input Ticker: ")
+
+    # Inputs
+
     if ticker:
-        t = TechnicalIndicators(ticker)
-        # st.set_option('deprecation.showPyplotGlobalUse', False)
-        # st.pyplot(t.trend_indicator())
-        # t.mean_reversion()
+        page.run(ticker)
+
+
+if __name__ == '__main__':
+    tick = input("Input Ticker: ")
+    t = TechnicalIndicators(tick)
+    # st.set_option('deprecation.showPyplotGlobalUse', False)
+    # st.pyplot(t.trend_indicator())
+    # t.mean_reversion()
