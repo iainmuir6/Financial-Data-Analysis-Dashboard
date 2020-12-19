@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import streamlit as st
 import requests
 import pickle
+import time
 import PIL
 import os
 import io
@@ -70,4 +71,6 @@ def run():
 
 
 if __name__ == '__main__':
+    start = time.time()
     run()
+    print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))

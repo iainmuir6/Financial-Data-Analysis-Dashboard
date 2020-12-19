@@ -2,6 +2,7 @@
 # iam9ez
 
 import streamlit as st
+import time
 
 
 def run():
@@ -25,4 +26,6 @@ def run():
 
 
 if __name__ == '__main__':
+    start = time.time()
     run()
+    print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))

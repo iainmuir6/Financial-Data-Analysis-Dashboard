@@ -3,7 +3,6 @@
 
 import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
-from locale import atof
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -85,21 +84,24 @@ def run():
         calls, puts = soup.find_all('section', class_='Mt(20px)')
 
         regex = re.compile(r'>([A-Za-z0-9,.+:-]+)')
-        current_price = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()['c']
+        current_price = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker +
+                                     '&token=' + api_key).json()['c']
 
         option_chain = calls.find('tbody').find_all('tr')
         call_data = [regex.findall(str(option)) for option in option_chain]
         call_df = pd.DataFrame(data=call_data,
                                columns=['contractName', 'lastTradeDate', 'strike', 'lastPrice', 'bid', 'ask', 'change',
                                         'pctChange', 'volume', 'openInterest', 'impliedVolatility'])
-        call_df['inTheMoney'] = np.where(call_df['strike'].str.replace(",", "").astype(float) < current_price, True, False)
+        call_df['inTheMoney'] = np.where(call_df['strike'].str.replace(",", "").astype(float) < current_price,
+                                         True, False)
 
         option_chain = puts.find('tbody').find_all('tr')
         put_data = [regex.findall(str(option)) for option in option_chain]
         put_df = pd.DataFrame(data=put_data,
                               columns=['contractName', 'lastTradeDate', 'strike', 'lastPrice', 'bid', 'ask', 'change',
                                        'pctChange', 'volume', 'openInterest', 'impliedVolatility'])
-        put_df['inTheMoney'] = np.where(put_df['strike'].str.replace(",", "").astype(float) < current_price, True, False)
+        put_df['inTheMoney'] = np.where(put_df['strike'].str.replace(",", "").astype(float) < current_price,
+                                        True, False)
 
         st.markdown("<center> <h3> Current Price (" + ticker + "): " + str(current_price) + "</h3> </center>",
                     unsafe_allow_html=True)
@@ -113,4 +115,6 @@ def run():
 
 
 if __name__ == '__main__':
+    start = time.time()
     run()
+    print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))

@@ -16,6 +16,7 @@ import mplfinance as fplt
 import streamlit as st
 import pandas as pd
 import requests
+import time
 
 
 class TechnicalIndicators:
@@ -141,12 +142,39 @@ def run():
     # Inputs
 
     if ticker:
-        page.run(ticker)
+        s = datetime(datetime.today().year - 1, 1, 1)
+        e = datetime.today()
+        api_key = 'bsm4nq7rh5rdb4arch50'
+
+        df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
+                                       'from=' + str(int(s.timestamp())) +
+                                       '&to=' + str(int(e.timestamp())) +
+                                       '&token=' + api_key).json()).drop(axis=1, labels='s')
+        df = pd.DataFrame({
+            'Date': pd.to_datetime(df['t']),
+            'Open': df['o'],
+            'High': df['h'],
+            'Low': df['l'],
+            'Close': df['c'],
+            'Volume': df['v'],
+        })
+
+        data = {'token': api_key,
+                'ticker': ticker,
+                'startDate': s,
+                'endDate': e,
+                'candles': df.set_index('Date')}
+
+        page.run(data)
 
 
 if __name__ == '__main__':
+    start = time.time()
+
     tick = input("Input Ticker: ")
     t = TechnicalIndicators(tick)
     # st.set_option('deprecation.showPyplotGlobalUse', False)
     # st.pyplot(t.trend_indicator())
     # t.mean_reversion()
+
+    print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))
