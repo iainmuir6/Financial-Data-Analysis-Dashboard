@@ -73,7 +73,8 @@ def run(data):
     fig.add_trace(
         go.Bar(
             x=candles.index,
-            y=candles['Volume']
+            y=candles['Volume'],
+            marker={'color': 'rgb(0,0,0)'}
         ),
         secondary_y=False
     )
@@ -96,7 +97,6 @@ def run(data):
     fig.layout.yaxis2.showgrid = False
 
     st.plotly_chart(fig)
-    fig.show()
 
 
 if __name__ == '__main__':
