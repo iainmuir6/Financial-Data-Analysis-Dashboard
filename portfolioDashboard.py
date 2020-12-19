@@ -16,6 +16,9 @@ def run():
     :return
     """
 
+    st.markdown("<h1 style='text-align:center;'> Portfolio </h1>", unsafe_allow_html=True)
+    st.write()  # Spacing
+
     if os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle"):
         p = pickle.load(open(
             "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle", 'rb'))

@@ -52,6 +52,9 @@ def run():
     :return
     """
 
+    st.markdown("<h1 style='text-align:center;'> Option Chains </h1>", unsafe_allow_html=True)
+    st.write()  # Spacing
+
     api_key = 'bsm4nq7rh5rdb4arch50'
 
     ticker = st.text_input("Input Ticker: ")

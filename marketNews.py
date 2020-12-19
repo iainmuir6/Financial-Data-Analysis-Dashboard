@@ -166,6 +166,9 @@ def run():
 
     # start = time.time()
 
+    st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
+    st.write()  # Spacing
+
     st.write("Market News")
 
     # market_news()
