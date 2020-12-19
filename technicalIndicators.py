@@ -133,7 +133,6 @@ def run():
         "Momentum": momentum,
     }
 
-    st.sidebar.title("Navigation")
     selection = st.sidebar.radio("Go to", list(pages.keys()))
     page = pages[selection]
 
