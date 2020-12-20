@@ -3,6 +3,7 @@
 
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
+from research import largestCap
 import streamlit as st
 import requests
 import time
@@ -166,11 +167,19 @@ def ipo_calendar():
     for ipo in ipos['ipoCalendar']:
         try:
             if ipo['totalSharesValue'] > 50000000:
+                st.markdown(
+                    datetime.strptime(ipo['date'], '%Y-%m-%d').strftime('%b %d, %Y') + " – **" +
+                    ipo['name'].title() + '** (' + ipo['symbol'] + ')'
+                )
+                bold = "**" if ipo['totalSharesValue'] > 1000000000 else ""
+                st.markdown(
+                    "|----- " + bold + " Valuation: " + money_string(ipo['totalSharesValue']) + " " + bold
+                )
                 print(ipo['date'], ipo['name'].title(), '(' + ipo['symbol'] +
                       ')  ---  Valuation:', money_string(ipo['totalSharesValue']))
         except TypeError:
-            print(ipo['date'], ipo['name'].title())
-    print()
+            # print(ipo['date'], ipo['name'].title())
+            continue
 
 
 def earnings_calendar():
@@ -193,13 +202,22 @@ def earnings_calendar():
         }
     """
     earnings = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
-                             str(date) + '&' + str(date + timedelta(days=30)) + '&token=' + api_key).json()
+                            str(date - timedelta(days=30)) + '&' +
+                            str(date + timedelta(days=30)) + '&token=' + api_key).json()
     for event in earnings['earningsCalendar']:
-        print(event['symbol'] + " (Q" + str(event['quarter']) + " " + str(event['year']) + ")" +
-              "\n\t EPS Actual vs. Expected: ", event['epsActual'], "vs.", str(round(event['epsEstimate'], 2)) +
-              "\n\t Revenue Actual vs. Expected: ",
-              money_string(event['revenueActual']), "vs.", money_string(event['revenueEstimate']))
-    print()
+        if event['symbol'] not in largestCap:
+            continue
+
+        st.markdown(
+            "**" + event['symbol'] + "** (Q" + str(event['quarter']) + " " + str(event['year']) + ")"
+        )
+        st.markdown(
+            "* EPS Actual vs. Expected: " + str(event['epsActual']) + " vs. " + str(round(event['epsEstimate'], 2))
+        )
+        st.markdown(
+            "* Revenue Actual vs. Expected: " + money_string(event['revenueActual']) + " vs. " +
+            money_string(event['revenueEstimate'])
+        )
 
 
 def run():
@@ -230,10 +248,10 @@ def run():
         analyst_sentiments(tick)
     st.markdown('------------------------------------------')
     st.subheader("Earnings Calendar")
-    # earnings_calendar()
+    earnings_calendar()
     st.markdown('------------------------------------------')
     st.subheader("IPO Calendar")
-    # ipo_calendar()
+    ipo_calendar()
 
 
 if __name__ == '__main__':
