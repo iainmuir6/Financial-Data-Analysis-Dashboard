@@ -2,11 +2,8 @@
 # iam9ez
 
 from plotly.subplots import make_subplots
+from datetime import datetime, timedelta
 import plotly.graph_objects as go
-# import matplotlib.pyplot as plt
-from datetime import datetime
-import plotly.express as px
-# import mplfinance as fplt
 import streamlit as st
 import pandas as pd
 import requests
@@ -38,6 +35,10 @@ def run(data):
                                  'from=' + str(int(start_date.timestamp())) +
                                  '&to=' + str(int(end_date.timestamp())) +
                                  '&indicator=ema&timeperiod=200&token=' + token).json()
+    #
+    # print(len(fifty['ema'][50:]), fifty['ema'].count(0))
+    # print(len(two_hundo['ema'][200:]), two_hundo['ema'].count(0))
+    # print(len(candles.index))
 
     fig = make_subplots(
         specs=[[{"secondary_y": True}]]
@@ -49,24 +50,27 @@ def run(data):
             high=candles['High'],
             low=candles['Low'],
             close=candles['Close'],
+            name='Candlestick'
         ),
         secondary_y=True
     )
     fig.add_trace(
         go.Scatter(
-            x=candles.index[-len(fifty['ema']):],
-            y=fifty['ema'],
+            x=candles.index[50:],
+            y=fifty['ema'][50:],
             mode='lines',
-            line={'color': 'rgb(0,0,0,0.5)'}
+            line={'color': 'rgb(0,0,0,0.5)'},
+            name='50-Day EMA'
         ),
         secondary_y=True
     )
     fig.add_trace(
         go.Scatter(
-            x=candles.index[-len(two_hundo['ema']):],
-            y=two_hundo['ema'],
+            x=candles.index[200:],
+            y=two_hundo['ema'][200:],
             mode='lines',
-            line={'color': 'rgb(0,0,0,0.5)'}
+            line={'color': 'rgb(0,0,0,0.5)'},
+            name='200-Day EMA'
         ),
         secondary_y=True
     )
@@ -74,7 +78,8 @@ def run(data):
         go.Bar(
             x=candles.index,
             y=candles['Volume'],
-            marker={'color': 'rgb(0,0,0)'}
+            marker={'color': 'rgb(0,0,0)'},
+            name='Volume'
         ),
         secondary_y=False
     )
