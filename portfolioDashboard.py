@@ -1,6 +1,7 @@
 # Iain Muir
 # iam9ez
 
+import plotly.graph_objects as go
 from bs4 import BeautifulSoup
 import streamlit as st
 import requests
@@ -11,14 +12,31 @@ import os
 import io
 
 
+def scale_image(image):
+    """
+    :argument image
+
+    :return height
+    """
+
+    height, width = image.height, image.width
+    ratio = height / width
+    return '50' if ratio >= 1 else str(int(50 * ratio))
+
+
 def run():
     """
 
     :return
     """
 
+    st.markdown("<center> "
+                "<img src='https://upload.wikimedia.org/wikipedia/en/d/da/Robinhood_%28company%29_logo.svg' "
+                "height='50'/> "
+                "</center>", unsafe_allow_html=True)
+    st.write()
     st.markdown("<h1 style='text-align:center;'> Portfolio </h1>", unsafe_allow_html=True)
-    st.write()  # Spacing
+    st.write("------------------------------------------")
 
     if os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle"):
         p = pickle.load(open(
@@ -32,19 +50,19 @@ def run():
             pickle.dump(p, open(
                 "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle", 'wb'))
 
-        # Streamlit
-        st.markdown("<center> "
-                    "<img src='https://upload.wikimedia.org/wikipedia/en/d/da/Robinhood_%28company%29_logo.svg' "
-                    "height='70'/> "
-                    "</center>", unsafe_allow_html=True)
-        st.write(" ")
-
         stocks_col, graph_col = st.beta_columns(2)
 
         stocks_col.subheader("Current Portfolio")
+        graph_col.subheader("Market Value: $" + str(p.market_value))
+        graph_col.subheader("Remaining Cash: $" + str(p.cash))
+        graph_col.subheader("Portfolio Composition: ")
+
         for stock in p.stocks.values():
+            name = stock.company
+
             logo = stock.logo
             height = '50'
+
             if logo == "":
                 try:
                     url = "https://en.wikipedia.org/wiki/" + stock.company.replace(" ", "_")
@@ -52,16 +70,32 @@ def run():
                     soup = BeautifulSoup(page.content, "html.parser")
                     logo = "https:" + soup.find("table", class_='infobox vcard').tbody.tr.td.a.img['src']
                     img = PIL.Image.open(io.BytesIO((requests.get(logo)).content))
-                    height, width = img.height, img.width
-                    height = str(int(width*0.25)) if height > width else str(int(height*0.25))
+                    height = scale_image(img)
                 except (Exception, ValueError) as e:
-                    # print(e)
-                    print("Could not find logo...")
+                    logo = "https://media-exp1.licdn.com/dms/image/C4D0BAQGpUHuSqzqVkw/company-logo_200_200/0/1550857" \
+                           "067943?e=1616630400&v=beta&t=xlDk7EW0NYiubh9SCYB18OUTn0RRdf7wyGXhXcyDmjA"
+            else:
+                img = PIL.Image.open(io.BytesIO((requests.get(logo)).content))
+                height = scale_image(img)
 
-            stocks_col.markdown("<img src='" + logo + "' height='" + height + "' /> " + stock.company + " (" +
+            if len(name) > 15:
+                name = ' '.join(map(str, name.split()[:name.count(" ") // 2]))
+
+            stocks_col.markdown("<img src='" + logo + "' height='" + height + "' /> " + name + " (" +
                                 stock.ticker + ")  -  $" + str(stock.current_price), unsafe_allow_html=True)
 
-        graph_col.subheader("Market Value: $" + str(p.market_value))
+            graph_col.markdown("* " + stock.ticker + " - " + str(round(stock.volume, 2)) + " shares")
+
+        fig = go.Figure(
+            data=[
+                go.Pie(labels=list(p.weight_dict.keys()),
+                       values=list(p.weight_dict.values()))
+            ]
+        )
+        fig.update_layout(
+            title='Portfolio Composition'
+        )
+        st.plotly_chart(fig)
 
     else:
         st.write("actualPortfolio does not exist...")
