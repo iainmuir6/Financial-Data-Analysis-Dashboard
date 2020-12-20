@@ -2,12 +2,16 @@
 # iam9ez
 
 from plotly.subplots import make_subplots
+from datetime import datetime, timedelta
 import plotly.graph_objects as go
-from datetime import datetime
 import streamlit as st
 import pandas as pd
 import requests
 import time
+
+# TO DO:
+#   Create Separate Functions?
+#   Clean up Filings section
 
 
 def run():
@@ -25,9 +29,11 @@ def run():
     if ticker:
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
+        color = 'green' if change > 0 else 'red'
 
-        st.markdown("<center> <h3> Current Price: <span style='color: " + ('green' if change > 0 else 'red') + "'> $" +
-                    str(round(quote['c'], 2)) + " (" + ('+' if change > 0 else "") + str(change) +
+        st.markdown("<center> <h3> Current Price: <span style='font-size:24pt'> $" +
+                    str(round(quote['c'], 2)) + "</span> <span style='font-size:14pt;color: " + color + "'>" +
+                    str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) +
                     "%) </span></h3> </center>", unsafe_allow_html=True)
         st.markdown("<center> Prev. Close: <b> $" + str(round(quote['pc'], 2)) + "</b>  |   Open: <b> $" +
                     str(round(quote['o'], 2)) + "</b>   |    High: <b> $" + str(round(quote['h'], 2)) +
@@ -90,6 +96,49 @@ def run():
 
         st.subheader("Candlestick Data")
         st.plotly_chart(fig)
+
+        st.subheader("Financials Summary")
+        st.write("Basic Financials")
+        basic_financials = requests.get('https://finnhub.io/api/v1/stock/metric?symbol=' + ticker +
+                                        '&metric=all&token=' + api_key).json()
+
+        data = [{}]
+        for k, v in basic_financials['series']['annual'].items():
+            print(k, v[0])
+        st.write("Financial Statements")
+
+        st.write("----------------------------")
+
+        st.subheader("SEC Filings")
+        s = datetime.today().date()
+        e = s - timedelta(days=365)
+        ten_k = ''
+        ten_q = ''
+        eight_k = ''
+
+        filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + api_key).json()
+
+        for f in filings:
+            if datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").date() < e:
+                break
+            if f['form'] == '10-K':
+                ten_k += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
+                         " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
+            elif f['form'] == '10-Q':
+                ten_q += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
+                         " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
+            elif f['form'] == '8-K':
+                eight_k += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
+                           " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
+            else:
+                continue
+
+        st.markdown('<u> Annual Reports </u>', unsafe_allow_html=True)
+        st.write(ten_k)
+        st.markdown('<u> Quarterly Reports </u>', unsafe_allow_html=True)
+        st.write(ten_q)
+        st.markdown('<u> Monthly Reports </u>', unsafe_allow_html=True)
+        st.write(eight_k)
 
 
 if __name__ == '__main__':
