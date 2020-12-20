@@ -41,14 +41,16 @@ def market_news():
     """
 
     m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + api_key).json()
+    text = "<p><ul>"
+    images = "<p style='text-align:center;color:white'/>"
     for news in m_news:
         if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
-            if news['source'] is None:
-                news['source'] = "n/a"
+            images += "<img src='" + news['image'] + "' height='120'/> --"
+            text += "<li><b>" + news['headline'] + "</b> (<a href='" + \
+                    news['url'] + "'>" + news['source'] + "</a>)</li>"
 
-            print(datetime.fromtimestamp(news['datetime']).date(), news['headline'],
-                  "(" + news['source'] + ") \n\t url: " + news['url'])
-    print()
+    st.markdown(images + "</p>", unsafe_allow_html=True)
+    st.markdown(text + "</ul></p>", unsafe_allow_html=True)
 
 
 def company_news():
@@ -67,16 +69,22 @@ def company_news():
         },
     """
     c_news = requests.get('https://finnhub.io/api/v1/company-news?symbol=' + ticker +
-                                '&from=' + str((date - timedelta(days=7))) + '&to=' + str(date) +
-                                '&token=' + api_key).json()
+                          '&from=' + str((date - timedelta(days=7))) + '&to=' + str(date) +
+                          '&token=' + api_key).json()
+    text = "<p><ul>"
+    images = "<p style='text-align:center;color:white'/>"
+    headlines = []
     for news in c_news:
-        if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
-            if news['source'] is None:
-                news['source'] = "n/a"
+        if news['headline'] in headlines:
+            continue
+        elif datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
+            images += "<img src='" + news['image'] + "' height='50'/> --"
+            text += "<li><b>" + news['headline'] + "</b> (<a href='" + \
+                    news['url'] + "'>" + news['source'] + "</a>)</li>"
+            headlines.append(news['headline'])
 
-            print(datetime.fromtimestamp(news['datetime']).date(), news['headline'],
-                  "(" + news['source'] + ") \n\t url: " + news['url'])
-    print()
+    st.markdown(images + "</p>", unsafe_allow_html=True)
+    st.markdown(text + "</ul></p>", unsafe_allow_html=True)
 
 
 def ipo_calendar():
@@ -167,14 +175,28 @@ def run():
     # start = time.time()
 
     st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
+                "</h3>", unsafe_allow_html=True)
     st.write()  # Spacing
+    st.markdown('---------------------')
 
-    st.write("Market News")
+    # Ticker Bar
+    #   Indices, FAANG, Crypto, Commodities
 
-    # market_news()
-    # company_news()
+    st.subheader("Overall Market News")
+    market_news()
+    st.subheader("Company News")
+    tick = st.text_input("Input Ticker:")
+    if tick:
+        company_news()
     # earnings_calendar()
     # ipo_calendar()
     # analyst_sentiments()
 
     # print('\n   --- Finished in %s seconds ---' % round(time.time() - start, 4))
+
+
+if __name__ == '__main__':
+    start = time.time()
+    run()
+    print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))
