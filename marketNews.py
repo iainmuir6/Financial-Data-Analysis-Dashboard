@@ -2,12 +2,12 @@
 # iam9ez
 
 from datetime import datetime, timedelta
+import plotly.graph_objects as go
 import streamlit as st
 import requests
 import time
 
 api_key = 'bsm4nq7rh5rdb4arch50'
-ticker = 'AAPL'
 date = datetime.today().date()
 
 
@@ -45,7 +45,7 @@ def market_news():
     images = "<p style='text-align:center;color:white'/>"
     for news in m_news:
         if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
-            images += "<img src='" + news['image'] + "' height='120'/> --"
+            images += "<img src='" + news['image'] + "' height='75'/> --"
             text += "<li><b>" + news['headline'] + "</b> (<a href='" + \
                     news['url'] + "'>" + news['source'] + "</a>)</li>"
 
@@ -53,7 +53,7 @@ def market_news():
     st.markdown(text + "</ul></p>", unsafe_allow_html=True)
 
 
-def company_news():
+def company_news(ticker):
     """
         RESPONSE FORMAT:
         {
@@ -83,8 +83,64 @@ def company_news():
                     news['url'] + "'>" + news['source'] + "</a>)</li>"
             headlines.append(news['headline'])
 
+    if len(text) == 7 and len(images) == 42:
+        st.markdown("<center> No Company News! </center>", unsafe_allow_html=True)
+        return
+
     st.markdown(images + "</p>", unsafe_allow_html=True)
     st.markdown(text + "</ul></p>", unsafe_allow_html=True)
+
+
+def analyst_sentiments(ticker):
+    """
+        RESPONSE FORMAT:
+        [
+          {
+            "buy": int,
+            "hold": int,
+            "period": str (date – first of month),
+            "sell": int,
+            "strongBuy": int,
+            "strongSell": int,
+            "symbol": str
+          },
+          ...
+        ]
+    """
+    analysts = requests.get('https://finnhub.io/api/v1/stock/recommendation?symbol=' +
+                            ticker + '&token=' + api_key).json()
+    length = len(analysts)
+    if length < 4:
+        if length == 0:
+            st.markdown("<center> No Analyst Sentiments! </center>", unsafe_allow_html=True)
+            return
+        else:
+            analysts = analysts[:length - 1]
+    else:
+        analysts = analysts[:2]
+
+    dates, sb, b, h, s, ss = [], [], [], [], [], []
+    for analyst in analysts:
+        dates.insert(0, datetime.strptime(analyst['period'], '%Y-%m-%d').strftime('%b %d, %Y'))
+        sb.insert(0, analyst['strongBuy'])
+        b.insert(0, analyst['buy'])
+        h.insert(0, analyst['hold'])
+        s.insert(0, analyst['sell'])
+        ss.insert(0, analyst['strongSell'])
+
+    fig = go.Figure(data=[
+        go.Bar(name='Strong Sell', x=dates, y=ss, marker_color='maroon'),
+        go.Bar(name='Sell', x=dates, y=s, marker_color='salmon'),
+        go.Bar(name='Hold', x=dates, y=h, marker_color='moccasin'),
+        go.Bar(name='Buy', x=dates, y=b, marker_color='lightgreen'),
+        go.Bar(name='Strong Buy', x=dates, y=sb, marker_color='darkgreen')
+    ])
+    fig.update_layout(barmode='stack',
+                      title_text='Analyst Recommendations (' + ticker + ')',
+                      xaxis={'title': 'Period'},
+                      yaxis={'title': '# of Analysts'})
+
+    st.plotly_chart(fig)
 
 
 def ipo_calendar():
@@ -146,26 +202,6 @@ def earnings_calendar():
     print()
 
 
-def analyst_sentiments():
-    """
-        RESPONSE FORMAT:
-        [
-          {
-            "buy": int,
-            "hold": int,
-            "period": str (date – first of month),
-            "sell": int,
-            "strongBuy": int,
-            "strongSell": int,
-            "symbol": str
-          },
-          ...
-        ]
-    """
-    analysts = requests.get('https://finnhub.io/api/v1/stock/recommendation?symbol=' +
-                            ticker + '&token=' + api_key).json()[:2]
-
-
 def run():
     """
 
@@ -178,22 +214,26 @@ def run():
     st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
                 "</h3>", unsafe_allow_html=True)
     st.write()  # Spacing
-    st.markdown('---------------------')
+    st.markdown('------------------------------------------')
 
     # Ticker Bar
     #   Indices, FAANG, Crypto, Commodities
 
     st.subheader("Overall Market News")
     market_news()
-    st.subheader("Company News")
+    st.markdown('------------------------------------------')
+    st.subheader("Company News and Analyst Sentiments")
     tick = st.text_input("Input Ticker:")
     if tick:
-        company_news()
+        company_news(tick)
+        st.markdown('------------------------------------------')
+        analyst_sentiments(tick)
+    st.markdown('------------------------------------------')
+    st.subheader("Earnings Calendar")
     # earnings_calendar()
+    st.markdown('------------------------------------------')
+    st.subheader("IPO Calendar")
     # ipo_calendar()
-    # analyst_sentiments()
-
-    # print('\n   --- Finished in %s seconds ---' % round(time.time() - start, 4))
 
 
 if __name__ == '__main__':

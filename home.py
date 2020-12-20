@@ -61,8 +61,8 @@ def run():
          Use websocket if you need real-time update.
         * Candles – Get candlestick data for stocks going back 25 years for US stocks.
         * Technical Indicators – Return technical indicator with price data. List of supported indicators
-         can be found [here](https://docs.google.com/spreadsheets/d/1ylUvKHVYN2E87WdwIza8ROaCpd48ggEl1k5i5SgA29k/
-         edit?usp=sharing).
+         can be found 
+         [here](https://docs.google.com/spreadsheets/d/1ylUvKHVYN2E87WdwIza8ROaCpd48ggEl1k5i5SgA29k/edit?usp=sharing).
         
         Generalized use:
         
