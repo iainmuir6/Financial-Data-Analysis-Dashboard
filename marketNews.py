@@ -260,13 +260,23 @@ def run():
                         "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
     st.markdown(running_tick + "</p></center>", unsafe_allow_html=True)
 
-    url = 'https://finance.yahoo.com/quote/%5ETNX/'
-    page = requests.get(url=url)
-    soup = BeautifulSoup(page.content, 'html.parser')
-    data = soup.find('div', class_='D(ib) Mend(20px)').find_all('span')
-    last = data[0].text
-    change = data[1].split()[0]
-    pct = data[1].split()[1]
+    for quote in ['BTC-USD?p=BTC-USD&.tsrc=fin-srch', '%5ETNX/']:
+        url = 'https://finance.yahoo.com/quote/' + quote
+        page = requests.get(url=url)
+        soup = BeautifulSoup(page.content, 'html.parser')
+        data = soup.find('div', class_='D(ib) Mend(20px)').find_all('span')
+
+        last = data[0].text
+        change = data[1].text.split()[0]
+        pct = data[1].text.split()[1]
+        color = 'green' if "+" in change else 'red'
+        # print(last, change, pct)
+        running_tick += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
+                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
+
+    forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=').json()['quote']
+    eur, gbp, jpy = forex['EUR'], forex['GBP'], forex['JPY']
+    print(eur, gbp, jpy)
 
     # Ticker Bar
     #   Indices, FAANG, Crypto, Commodities, 10 yr Yield, Currency
