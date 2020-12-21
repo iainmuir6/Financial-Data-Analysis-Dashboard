@@ -1,5 +1,21 @@
-# Iain Muir
-# iam9ez
+"""
+Iain Muir, iam9ez
+
+PROJECT DESCRIPTION
+
+TO-DO:
+    • Tickers
+    • Reformat Market News
+    • Translate Tickers to Company Names
+    • Order Files with Delineated Functions
+    • Order IPO Calendar by date
+    • Insert Exceptions (everywhere)
+    • Financial Statements
+    • Iron Condor
+    • Remaining Technical Indicators
+        • Descriptions of each
+    • COVID Data
+"""
 
 import streamlit as st
 

@@ -4,6 +4,7 @@
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from research import largestCap
+from bs4 import BeautifulSoup
 import streamlit as st
 import requests
 import time
@@ -76,12 +77,12 @@ def company_news(ticker):
     images = "<p style='text-align:center;color:white'/>"
     headlines = []
     for news in c_news:
-        if news['headline'] in headlines:
+        if news['headline'] in headlines or 'http' in news['source']:
             continue
         elif datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
             images += "<img src='" + news['image'] + "' height='50'/> --"
             text += "<li><b>" + news['headline'] + "</b> (<a href='" + \
-                    news['url'] + "'>" + news['source'] + "</a>)</li>"
+                    news['url'] + "'>" + news['source'].title() + "</a>)</li>"
             headlines.append(news['headline'])
 
     if len(text) == 7 and len(images) == 42:
@@ -229,12 +230,48 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
                 "</h3>", unsafe_allow_html=True)
-    st.write()  # Spacing
-    st.markdown('------------------------------------------')
+    # st.write("------------------------------")  # Spacing
+
+    running_tick = '<center><p class="small">'
+    for ticker in ['FB', 'AAPL', 'AMZN', 'NFLX', 'GOOG']:
+        quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
+        change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
+        color = 'green' if change > 0 else 'red'
+
+        running_tick += "<b><span style='font-size:7pt'>" + ticker + "</span></b><span style='font-size:8pt'> $" + \
+                        str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" + \
+                        str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + \
+                        "%)\n </span>"
+
+    url = 'https://money.cnn.com/data/commodities/'
+    page = requests.get(url=url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    for commodity in soup.find_all('tr', class_='commBotRow'):
+        c = commodity.td.strong.text
+        if c.strip() not in ['Oil  (Light Crude)', 'Gold', 'Silver', 'Corn', "Wheat"]:
+            continue
+        c = c.replace('  (Light Crude)', '')
+        last = commodity.find('td', class_='cnncol3').text
+        change = commodity.find('td', class_='cnncol5').text
+        pct = commodity.find('td', class_='cnncol6').text
+        color = 'green' if "+" in change else 'red'
+        running_tick += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
+                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
+    st.markdown(running_tick + "</p></center>", unsafe_allow_html=True)
+
+    url = 'https://finance.yahoo.com/quote/%5ETNX/'
+    page = requests.get(url=url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    data = soup.find('div', class_='D(ib) Mend(20px)').find_all('span')
+    last = data[0].text
+    change = data[1].split()[0]
+    pct = data[1].split()[1]
 
     # Ticker Bar
-    #   Indices, FAANG, Crypto, Commodities
+    #   Indices, FAANG, Crypto, Commodities, 10 yr Yield, Currency
 
+    st.markdown('------------------------------------------')
     st.subheader("Overall Market News")
     market_news()
     st.markdown('------------------------------------------')
