@@ -175,8 +175,6 @@ def ipo_calendar():
                 st.markdown(
                     "|----- " + bold + " Valuation: " + money_string(ipo['totalSharesValue']) + " " + bold
                 )
-                print(ipo['date'], ipo['name'].title(), '(' + ipo['symbol'] +
-                      ')  ---  Valuation:', money_string(ipo['totalSharesValue']))
         except TypeError:
             # print(ipo['date'], ipo['name'].title())
             continue
