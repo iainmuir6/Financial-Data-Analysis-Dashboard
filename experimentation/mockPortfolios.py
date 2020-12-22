@@ -8,6 +8,7 @@ except ModuleNotFoundError:
 
 from datetime import datetime, timedelta
 from portfolio import Portfolio
+from constants import API_KEY
 import requests
 import os
 
@@ -21,8 +22,6 @@ PORTFOLIO DIVERSIFICATION
     Indices/ETFs    (5 – 20%)
     Options         (3 – 12%)
 """
-
-API_KEY = os.environ['API_KEY']
 
 
 def annualized_return(portfolio):

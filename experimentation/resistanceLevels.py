@@ -1,14 +1,11 @@
 # Iain Muir
 # iam9ez
 
-import plotly.graph_objects as go
 from datetime import datetime, timedelta
+import plotly.graph_objects as go
+from constants import API_KEY
 import pandas as pd
 import requests
-import os
-
-API_KEY = os.environ['API_KEY']
-# s_date = datetime(2020, 9, 1)
 
 resolution = 30
 e_date = datetime.today()

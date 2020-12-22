@@ -12,17 +12,17 @@ Five Categories of Technical Indicators:
 from techIndicatorFolder import trendIndicator, meanReversion, relativeStrength, volume, momentum
 import matplotlib.pyplot as plt
 from datetime import datetime
+from constants import API_KEY
 import mplfinance as fplt
 import streamlit as st
 import pandas as pd
 import requests
 import time
-import os
 
 
 class TechnicalIndicators:
     def __init__(self, ticker):
-        self.token = os.environ['API_KEY']
+        self.token = API_KEY
         self.ticker = ticker
         self.start_date = datetime(datetime.today().year - 1, 1, 1)
         self.end_date = datetime.today()
@@ -68,10 +68,6 @@ class TechnicalIndicators:
             block=False
         )
 
-        # plt.plot(fifty['c'], color='black')
-        # plt.plot(two_hundo['c'], color='red')
-        # plt.show()
-
         return fig
 
     def mean_reversion(self):
@@ -109,22 +105,9 @@ def run():
     """
     global ticker
 
-    # # Markdown Tags
-    # st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
-    #             "height='20'/> <img src='https://img.shields.io/badge/implementation-streamlit-orange' "
-    #             "height='20'/> </center>", unsafe_allow_html=True)
-    # # Logos
-    # st.markdown("<center> "
-    #             "<img src='https://upload.wikimedia.org/wikipedia/en/d/da/Robinhood_%28company%29_logo.svg' "
-    #             "height='50'/> "
-    #             "<img src='https://upload.wikimedia.org/wikipedia/commons/d/da/Yahoo_Finance_Logo_2019.svg' "
-    #             "height='125'/> </center>", unsafe_allow_html=True)
-    # st.write()      # Spacing
-
     st.markdown("<h1 style='text-align:center;'> Technical Indicators </h1>", unsafe_allow_html=True)
-    st.write()      # Spacing
+    st.write()
 
-    # Navigation
     st.sidebar.title("Techincal Indicators")
 
     pages = {
@@ -145,7 +128,6 @@ def run():
     if ticker:
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
-        API_KEY = os.environ['api_key']
 
         df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
                                        'from=' + str(int(s.timestamp())) +
@@ -176,10 +158,5 @@ if __name__ == '__main__':
 
     ticker = input("Input Ticker: ")
     run()
-
-    # t = TechnicalIndicators(tick)
-    # st.set_option('deprecation.showPyplotGlobalUse', False)
-    # st.pyplot(t.trend_indicator())
-    # t.mean_reversion()
 
     print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))

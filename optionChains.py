@@ -4,6 +4,7 @@
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
+from constants import API_KEY
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -85,7 +86,6 @@ def iron_condor(ticker):
     # graph
     # Max Profit
     # Max Loss
-    API_KEY = os.environ['API_KEY']
 
     st.markdown("<center> <h3> Iron Condor Options Strategy </h3> </center>", unsafe_allow_html=True)
     st.markdown(
@@ -144,7 +144,6 @@ def scrape(ticker, date):
 
     :return
     """
-    API_KEY = os.environ['API_KEY']
 
     url = "https://finance.yahoo.com/quote/" + ticker + "/options?p=" + ticker + "&date=" + str(date)
     page = requests.get(url)
@@ -191,16 +190,6 @@ def run():
         url = "https://finance.yahoo.com/quote/" + ticker + "/options?p=" + ticker
         page = requests.get(url)
         soup = BeautifulSoup(page.content, 'html.parser')
-
-        # dates = {}
-        # choices = soup.find_all("select", class_='Fz(s) H(25px) Bd Bdc($seperatorColor)')[0].find_all('option')
-        # i = 1
-        # text = "Choose from the following expiration dates: \n"
-        # for c in choices:
-        #     dates[str(i)] = c['value']
-        #     text += "\t " + str(i) + ") " + c.text + '\n'
-        #     i += 1
-        # date = dates[input(text)]
 
         options = soup.find_all("select", class_='Fz(s) H(25px) Bd Bdc($seperatorColor)')[0].find_all('option')
         string_choices = [option.text for option in options]

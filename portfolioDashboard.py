@@ -4,10 +4,10 @@
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
 import streamlit as st
+from PIL import Image
 import requests
 import pickle
 import time
-import PIL
 import os
 import io
 
@@ -69,13 +69,13 @@ def run():
                     page = requests.get(url)
                     soup = BeautifulSoup(page.content, "html.parser")
                     logo = "https:" + soup.find("table", class_='infobox vcard').tbody.tr.td.a.img['src']
-                    img = PIL.Image.open(io.BytesIO((requests.get(logo)).content))
+                    img = Image.open(io.BytesIO((requests.get(logo)).content))
                     height = scale_image(img)
                 except (Exception, ValueError) as e:
                     logo = "https://media-exp1.licdn.com/dms/image/C4D0BAQGpUHuSqzqVkw/company-logo_200_200/0/1550857" \
                            "067943?e=1616630400&v=beta&t=xlDk7EW0NYiubh9SCYB18OUTn0RRdf7wyGXhXcyDmjA"
             else:
-                img = PIL.Image.open(io.BytesIO((requests.get(logo)).content))
+                img = Image.open(io.BytesIO((requests.get(logo)).content))
                 height = scale_image(img)
 
             if len(name) > 15:

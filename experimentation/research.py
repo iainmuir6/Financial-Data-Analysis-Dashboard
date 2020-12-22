@@ -12,10 +12,9 @@ PORTFOLIO DIVERSIFICATION
     Options         (3 – 12%)
 """
 
-import requests
-import os
 
-API_KEY = os.environ['API_KEY']
+# from constants import API_KEY
+# import requests
 
 # largeCap = list(requests.get(
 #     'https://finnhub.io/api/v1/index/constituents?symbol=^GSPC&token=' + api_key).json()['constituents'])

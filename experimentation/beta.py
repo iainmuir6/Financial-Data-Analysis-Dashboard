@@ -4,14 +4,12 @@
 from statsmodels import regression
 import matplotlib.pyplot as plt
 from datetime import datetime
+from constants import API_KEY
 import statsmodels.api as sm
 import pandas as pd
 import requests
 import time
-import os
 
-
-API_KEY = os.environ['API_KEY']
 
 industries = {'Industrial Conglomerates': [('3M', 'MMM')],
               'Financial Services': [('American Express', 'AXP'), ('Goldman Sachs', 'GS')],

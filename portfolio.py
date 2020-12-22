@@ -3,12 +3,10 @@
 
 from collections import deque
 from datetime import datetime
+from constants import API_KEY
 import pandas as pd
 import numpy as np
 import requests
-import os
-
-API_KEY = os.environ['API_KEY']
 
 
 class Portfolio:

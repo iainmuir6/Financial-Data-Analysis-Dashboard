@@ -2,7 +2,7 @@
 # iam9ez
 
 from plotly.subplots import make_subplots
-from datetime import datetime, timedelta
+from datetime import datetime
 import plotly.graph_objects as go
 import streamlit as st
 import pandas as pd
@@ -35,10 +35,6 @@ def run(data):
                                  'from=' + str(int(start_date.timestamp())) +
                                  '&to=' + str(int(end_date.timestamp())) +
                                  '&indicator=ema&timeperiod=200&token=' + token).json()
-    #
-    # print(len(fifty['ema'][50:]), fifty['ema'].count(0))
-    # print(len(two_hundo['ema'][200:]), two_hundo['ema'].count(0))
-    # print(len(candles.index))
 
     fig = make_subplots(
         specs=[[{"secondary_y": True}]]

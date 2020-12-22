@@ -5,12 +5,12 @@ from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from experimentation.research import largestCap
 from bs4 import BeautifulSoup
+from constants import API_KEY
 import streamlit as st
 import requests
 import time
 import os
 
-API_KEY = os.environ["API_KEY"]
 date = datetime.today().date()
 
 

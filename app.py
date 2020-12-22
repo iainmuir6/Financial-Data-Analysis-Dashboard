@@ -14,6 +14,7 @@ TO-DO:
     • Remaining Technical Indicators
         • Descriptions of each
     • COVID Data
+    • Documentation
 """
 
 import streamlit as st
