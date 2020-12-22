@@ -38,6 +38,8 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Portfolio </h1>", unsafe_allow_html=True)
     st.write("------------------------------------------")
 
+    st.write(os.environ.keys())
+    st.write(__name__)
     if os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle"):
         p = pickle.load(open(
             "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle", 'rb'))
