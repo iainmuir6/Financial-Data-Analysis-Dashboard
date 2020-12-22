@@ -27,6 +27,25 @@ def money_string(value: int):
     return (string + "$")[::-1]
 
 
+def yahoo_finance(endpoint):
+    """
+    :argument
+
+    :return
+    """
+    url = 'https://finance.yahoo.com/quote/' + endpoint
+    page = requests.get(url=url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    data = soup.find('div', class_='D(ib) Mend(20px)').find_all('span')
+
+    last = data[0].text
+    change = data[1].text.split()[0]
+    pct = data[1].text.split()[1]
+    color = 'green' if "+" in change else 'red'
+
+    return last, change, pct, color
+
+
 def market_news():
     """
         RESPONSE FORMAT:
@@ -227,23 +246,30 @@ def run():
     """
 
     # start = time.time()
-    st.write(api_key)
     st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
                 "</h3>", unsafe_allow_html=True)
     # st.write("------------------------------")  # Spacing
 
     running_tick = '<center><p class="small">'
+
+    for item in [('%5EGSPC', 'S&P 500'), ('%5EDJI', "Dow Jones"), ('%5EIXIC', 'Nasdaq'), ()]:
+        endpoint, i = item
+        last, change, pct, color = yahoo_finance(endpoint)
+        running_tick += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
+                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
+
     for ticker in ['FB', 'AAPL', 'AMZN', 'NFLX', 'GOOG']:
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
-        print('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key)
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
 
         running_tick += "<b><span style='font-size:7pt'>" + ticker + "</span></b><span style='font-size:8pt'> $" + \
                         str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" + \
                         str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + \
-                        "%)\n </span>"
+                        "%) </span>"
+    if len(running_tick) < 780:
+        running_tick += "<span style='color:white;'> - </span>"
 
     url = 'https://money.cnn.com/data/commodities/'
     page = requests.get(url=url)
@@ -260,26 +286,30 @@ def run():
         color = 'green' if "+" in change else 'red'
         running_tick += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
                         "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
+
+    if len(running_tick) < 1590:
+        running_tick += "<span style='color:white;'> - </span>"
+
+    for item in [('%5ETNX/', '10yr Yield'), ('BTC-USD?p=BTC-USD', 'Bitcoin')]:
+        endpoint, i = item
+        last, change, pct, color = yahoo_finance(endpoint)
+        running_tick += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
+                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
+
+    forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=' + api_key).json()['quote']
+    eur, gbp, jpy, chf, cad = str(round(forex['EUR'], 2)), str(round(forex['GBP'], 2)), str(round(forex['JPY'], 2)), \
+                              str(round(forex['CHF'], 2)), str(round(forex['CAD'], 2))
+    running_tick += "<b><span style='font-size:7pt'> Euro </span></b><span style='font-size:8pt'>" + eur + " </span>" \
+                    "<b><span style='font-size:7pt'> Pound " + "</span></b>" \
+                                                               "<span style='font-size:8pt'>" + gbp + "</span>" \
+                    "<b><span style='font-size:7pt'> Yen " + "</span></b>" \
+                                                             "<span style='font-size:8pt'>" + jpy + "</span>" \
+                    "<b><span style='font-size:7pt'> Franc " + "</span></b>" \
+                                                             "<span style='font-size:8pt'>" + chf + "</span>" \
+                    "<b><span style='font-size:7pt'> Loonie " + "</span></b>" \
+                                                             "<span style='font-size:8pt'>" + cad + "</span>"
+
     st.markdown(running_tick + "</p></center>", unsafe_allow_html=True)
-
-    for quote in ['BTC-USD?p=BTC-USD&.tsrc=fin-srch', '%5ETNX/']:
-        url = 'https://finance.yahoo.com/quote/' + quote
-        page = requests.get(url=url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        data = soup.find('div', class_='D(ib) Mend(20px)').find_all('span')
-
-        last = data[0].text
-        change = data[1].text.split()[0]
-        pct = data[1].text.split()[1]
-        color = 'green' if "+" in change else 'red'
-        # print(last, change, pct)
-        running_tick += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
-                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
-
-    forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=').json()['quote']
-    eur, gbp, jpy = forex['EUR'], forex['GBP'], forex['JPY']
-    print(eur, gbp, jpy)
-
     # Ticker Bar
     #   Indices, FAANG, Crypto, Commodities, 10 yr Yield, Currency
 
