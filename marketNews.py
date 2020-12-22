@@ -3,7 +3,7 @@
 
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
-from research import largestCap
+from experimentation.research import largestCap
 from bs4 import BeautifulSoup
 import streamlit as st
 import requests

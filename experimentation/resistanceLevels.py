@@ -2,7 +2,6 @@
 # iam9ez
 
 import plotly.graph_objects as go
-from research import largestCap
 from datetime import datetime, timedelta
 import pandas as pd
 import requests

@@ -8,7 +8,6 @@ except ModuleNotFoundError:
 
 from datetime import datetime, timedelta
 from portfolio import Portfolio
-from research import largestCap
 import requests
 import os
 
