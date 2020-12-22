@@ -253,11 +253,13 @@ def run():
 
     running_tick = '<center><p class="small">'
 
-    for item in [('%5EGSPC', 'S&P 500'), ('%5EDJI', "Dow Jones"), ('%5EIXIC', 'Nasdaq'), ()]:
+    for item in [('%5EGSPC', 'S&P 500'), ('%5EDJI', "Dow Jones"), ('%5EIXIC', 'Nasdaq'), ('%5ERUT', 'Russell 2000')]:
         endpoint, i = item
         last, change, pct, color = yahoo_finance(endpoint)
         running_tick += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
                         "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
+    if len(running_tick) < 660:
+        running_tick += "<span style='color:white;'> - </span>"
 
     for ticker in ['FB', 'AAPL', 'AMZN', 'NFLX', 'GOOG']:
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
@@ -268,7 +270,7 @@ def run():
                         str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" + \
                         str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + \
                         "%) </span>"
-    if len(running_tick) < 780:
+    if len(running_tick) < 1420:
         running_tick += "<span style='color:white;'> - </span>"
 
     url = 'https://money.cnn.com/data/commodities/'
@@ -286,8 +288,7 @@ def run():
         color = 'green' if "+" in change else 'red'
         running_tick += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
                         "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
-
-    if len(running_tick) < 1590:
+    if len(running_tick) < 2225:
         running_tick += "<span style='color:white;'> - </span>"
 
     for item in [('%5ETNX/', '10yr Yield'), ('BTC-USD?p=BTC-USD', 'Bitcoin')]:
@@ -310,8 +311,6 @@ def run():
                                                              "<span style='font-size:8pt'>" + cad + "</span>"
 
     st.markdown(running_tick + "</p></center>", unsafe_allow_html=True)
-    # Ticker Bar
-    #   Indices, FAANG, Crypto, Commodities, 10 yr Yield, Currency
 
     st.markdown('------------------------------------------')
     st.subheader("Overall Market News")
