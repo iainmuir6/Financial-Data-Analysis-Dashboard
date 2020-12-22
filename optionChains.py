@@ -11,6 +11,7 @@ import requests
 import time
 import math
 import re
+import os
 
 
 def graph_option(data, price):
@@ -84,7 +85,7 @@ def iron_condor(ticker):
     # graph
     # Max Profit
     # Max Loss
-    api_key = 'bsm4nq7rh5rdb4arch50'
+    api_key = os.environ['api_key']
 
     st.markdown("<center> <h3> Iron Condor Options Strategy </h3> </center>", unsafe_allow_html=True)
     st.markdown(
@@ -143,7 +144,7 @@ def scrape(ticker, date):
 
     :return
     """
-    api_key = 'bsm4nq7rh5rdb4arch50'
+    api_key = os.environ['api_key']
 
     url = "https://finance.yahoo.com/quote/" + ticker + "/options?p=" + ticker + "&date=" + str(date)
     page = requests.get(url)

@@ -17,11 +17,12 @@ import streamlit as st
 import pandas as pd
 import requests
 import time
+import os
 
 
 class TechnicalIndicators:
     def __init__(self, ticker):
-        self.token = 'bsm4nq7rh5rdb4arch50'
+        self.token = os.environ['api_key']
         self.ticker = ticker
         self.start_date = datetime(datetime.today().year - 1, 1, 1)
         self.end_date = datetime.today()
@@ -144,7 +145,7 @@ def run():
     if ticker:
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
-        api_key = 'bsm4nq7rh5rdb4arch50'
+        api_key = os.environ['api_key']
 
         df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
                                        'from=' + str(int(s.timestamp())) +

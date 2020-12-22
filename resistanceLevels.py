@@ -6,8 +6,9 @@ from research import largestCap
 from datetime import datetime, timedelta
 import pandas as pd
 import requests
+import os
 
-api_key = 'bsm4nq7rh5rdb4arch50'
+api_key = os.environ['api_key']
 # s_date = datetime(2020, 9, 1)
 
 resolution = 30

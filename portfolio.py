@@ -6,8 +6,9 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import requests
+import os
 
-api_key = 'bsm4nq7rh5rdb4arch50'
+api_key = os.environ['api_key']
 
 
 class Portfolio:

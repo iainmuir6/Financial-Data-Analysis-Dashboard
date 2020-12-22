@@ -13,7 +13,9 @@ PORTFOLIO DIVERSIFICATION
 """
 
 import requests
-api_key = 'bsm4nq7rh5rdb4arch50'
+import os
+
+api_key = os.environ['api_key']
 
 # largeCap = list(requests.get(
 #     'https://finnhub.io/api/v1/index/constituents?symbol=^GSPC&token=' + api_key).json()['constituents'])

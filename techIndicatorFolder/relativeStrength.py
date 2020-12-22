@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import time
+import os
 
 
 def run(data):
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     tick = input("Input Ticker: ")
     s = datetime(datetime.today().year - 1, 1, 1)
     e = datetime.today()
-    api_key = 'bsm4nq7rh5rdb4arch50'
+    api_key = os.environ['api_key']
 
     df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&' +
                                    'from=' + str(int(s.timestamp())) +

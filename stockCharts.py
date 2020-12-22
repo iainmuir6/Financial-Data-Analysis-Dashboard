@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import time
+import os
 
 # TO DO:
 #   Create Separate Functions?
@@ -32,7 +33,7 @@ def run():
 
     :return
     """
-    api_key = 'bsm4nq7rh5rdb4arch50'
+    api_key = os.environ['api_key']
 
     st.markdown("<h1 style='text-align:center;'> Stock Information </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
@@ -55,7 +56,7 @@ def run():
 
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
-        api_key = 'bsm4nq7rh5rdb4arch50'
+        api_key = os.environ['api_key']
 
         df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
                                        'from=' + str(int(s.timestamp())) +
