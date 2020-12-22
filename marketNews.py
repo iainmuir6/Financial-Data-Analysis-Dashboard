@@ -9,7 +9,6 @@ from constants import API_KEY
 import streamlit as st
 import requests
 import time
-import os
 
 date = datetime.today().date()
 
@@ -185,20 +184,25 @@ def ipo_calendar():
     """
     ipos = requests.get('https://finnhub.io/api/v1/calendar/ipo?from=' + str(date - timedelta(days=7)) +
                         '&to=' + str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
+    d = {}
     for ipo in ipos['ipoCalendar']:
         try:
             if ipo['totalSharesValue'] > 50000000:
-                st.markdown(
-                    datetime.strptime(ipo['date'], '%Y-%m-%d').strftime('%b %d, %Y') + " – **" +
-                    ipo['name'].title() + '** (' + ipo['symbol'] + ')'
-                )
-                bold = "**" if ipo['totalSharesValue'] > 1000000000 else ""
-                st.markdown(
-                    "|----- " + bold + " Valuation: " + money_string(ipo['totalSharesValue']) + " " + bold
-                )
+                ipo_date = datetime.strptime(ipo['date'], '%Y-%m-%d').strftime('%b %d, %Y')
+                if ipo_date not in d.keys():
+                    d[ipo_date] = [[ipo['name'], ipo['symbol'], ipo['totalSharesValue']]]
+                else:
+                    d[ipo_date].append([ipo['name'], ipo['symbol'], ipo['totalSharesValue']])
         except TypeError:
-            # print(ipo['date'], ipo['name'].title())
             continue
+
+    for d, values in d.items():
+        st.markdown("<ul>" + d + '</ul>', unsafe_allow_html=True)
+        for val in values:
+            bold = "**" if val[2] > 1000000000 else ""
+            st.markdown(
+                "* **" + val[0].title() + '** (' + val[1] + ')  --  ' + bold + money_string(val[2]) + " " + bold
+            )
 
 
 def earnings_calendar():
@@ -226,9 +230,11 @@ def earnings_calendar():
     for event in earnings['earningsCalendar']:
         if event['symbol'] not in largestCap:
             continue
+        company = requests.get('https://finnhub.io/api/v1/stock/profile2?symbol=' + event['symbol'] + '&token=' +
+                               API_KEY).json()['name']
 
         st.markdown(
-            "**" + event['symbol'] + "** (Q" + str(event['quarter']) + " " + str(event['year']) + ")"
+            "**" + company + "** (Q" + str(event['quarter']) + " " + str(event['year']) + ")"
         )
         st.markdown(
             "* EPS Actual vs. Expected: " + str(event['epsActual']) + " vs. " + str(round(event['epsEstimate'], 2))
