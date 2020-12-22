@@ -85,7 +85,7 @@ def iron_condor(ticker):
     # graph
     # Max Profit
     # Max Loss
-    api_key = os.environ['api_key']
+    API_KEY = os.environ['api_key']
 
     st.markdown("<center> <h3> Iron Condor Options Strategy </h3> </center>", unsafe_allow_html=True)
     st.markdown(
@@ -119,7 +119,7 @@ def iron_condor(ticker):
         call_df, put_df = scrape(ticker, date)
 
         current_price = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker +
-                                     '&token=' + api_key).json()['c']
+                                     '&token=' + API_KEY).json()['c']
         rounded = float(math.ceil(current_price / 10) * 10)
         long_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 35.0].values[0]
         short_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 30.0].values[0]

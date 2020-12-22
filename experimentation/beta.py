@@ -11,7 +11,7 @@ import time
 import os
 
 
-api_key = os.environ['api_key']
+API_KEY = os.environ['api_key']
 
 industries = {'Industrial Conglomerates': [('3M', 'MMM')],
               'Financial Services': [('American Express', 'AXP'), ('Goldman Sachs', 'GS')],
@@ -49,7 +49,7 @@ sdate = datetime(2020, 1, 1)
 edate = datetime.today()
 
 spy = requests.get('https://finnhub.io/api/v1/stock/candle?symbol=SPY&resolution=D&from=' +
-                   str(int(sdate.timestamp())) + '&to=' + str(int(edate.timestamp())) + '&token=' + api_key).json()
+                   str(int(sdate.timestamp())) + '&to=' + str(int(edate.timestamp())) + '&token=' + API_KEY).json()
 return_spy = pd.Series(spy['c']).pct_change()[1:]
 X = return_spy.values
 
@@ -61,7 +61,7 @@ for industry, companies in industries.items():
         ticker = company[1]
         df = requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker +
                           '&resolution=D&from=' + str(int(sdate.timestamp())) +
-                          '&to=' + str(int(edate.timestamp())) + '&token=' + api_key).json()
+                          '&to=' + str(int(edate.timestamp())) + '&token=' + API_KEY).json()
         return_val = pd.Series(df['c']).pct_change()[1:]
         Y = return_val.values
 

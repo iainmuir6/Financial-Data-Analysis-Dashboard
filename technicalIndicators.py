@@ -145,12 +145,12 @@ def run():
     if ticker:
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
-        api_key = os.environ['api_key']
+        API_KEY = os.environ['api_key']
 
         df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
                                        'from=' + str(int(s.timestamp())) +
                                        '&to=' + str(int(e.timestamp())) +
-                                       '&token=' + api_key).json()).drop(axis=1, labels='s')
+                                       '&token=' + API_KEY).json()).drop(axis=1, labels='s')
         df['t'] = [datetime.fromtimestamp(x) for x in df['t']]
 
         df = pd.DataFrame({
@@ -162,7 +162,7 @@ def run():
             'Volume': df['v'],
         })
 
-        data = {'token': api_key,
+        data = {'token': API_KEY,
                 'ticker': ticker,
                 'startDate': s,
                 'endDate': e,

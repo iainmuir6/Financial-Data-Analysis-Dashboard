@@ -10,7 +10,7 @@ import requests
 import time
 import os
 
-api_key = os.environ["api_key"]
+API_KEY = os.environ["api_key"]
 date = datetime.today().date()
 
 
@@ -62,7 +62,7 @@ def market_news():
         },
     """
 
-    m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + api_key).json()
+    m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + API_KEY).json()
     text = "<p><ul>"
     images = "<p style='text-align:center;color:white'/>"
     for news in m_news:
@@ -92,7 +92,7 @@ def company_news(ticker):
     """
     c_news = requests.get('https://finnhub.io/api/v1/company-news?symbol=' + ticker +
                           '&from=' + str((date - timedelta(days=7))) + '&to=' + str(date) +
-                          '&token=' + api_key).json()
+                          '&token=' + API_KEY).json()
     text = "<p><ul>"
     images = "<p style='text-align:center;color:white'/>"
     headlines = []
@@ -130,7 +130,7 @@ def analyst_sentiments(ticker):
         ]
     """
     analysts = requests.get('https://finnhub.io/api/v1/stock/recommendation?symbol=' +
-                            ticker + '&token=' + api_key).json()
+                            ticker + '&token=' + API_KEY).json()
     length = len(analysts)
     if length < 4:
         if length == 0:
@@ -184,7 +184,7 @@ def ipo_calendar():
         }
     """
     ipos = requests.get('https://finnhub.io/api/v1/calendar/ipo?from=' + str(date - timedelta(days=7)) +
-                        '&to=' + str(date + timedelta(days=30)) + '&token=' + api_key).json()
+                        '&to=' + str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
     for ipo in ipos['ipoCalendar']:
         try:
             if ipo['totalSharesValue'] > 50000000:
@@ -222,7 +222,7 @@ def earnings_calendar():
     """
     earnings = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
                             str(date - timedelta(days=30)) + '&' +
-                            str(date + timedelta(days=30)) + '&token=' + api_key).json()
+                            str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
     for event in earnings['earningsCalendar']:
         if event['symbol'] not in largestCap:
             continue
@@ -249,33 +249,32 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
                 "</h3>", unsafe_allow_html=True)
-    # st.write("------------------------------")  # Spacing
 
-    running_tick = '<center><p class="small">'
-
+    indices = '<center>'
     for item in [('%5EGSPC', 'S&P 500'), ('%5EDJI', "Dow Jones"), ('%5EIXIC', 'Nasdaq'), ('%5ERUT', 'Russell 2000')]:
         endpoint, i = item
         last, change, pct, color = yahoo_finance(endpoint)
-        running_tick += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
-                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
-    if len(running_tick) < 660:
-        running_tick += "<span style='color:white;'> - </span>"
+        indices += "<b><span style='font-size:6.5pt'>" + i + "</span></b><span style='font-size:7.5pt'> $" + last + \
+                   "</span><span style='font-size:6.5pt;color:" + color + "'> " + change + " " + pct + " </span>"
+    st.markdown(indices + '</center>', unsafe_allow_html=True)
 
+    faang = '<center>'
     for ticker in ['FB', 'AAPL', 'AMZN', 'NFLX', 'GOOG']:
-        quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
+        quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
 
-        running_tick += "<b><span style='font-size:7pt'>" + ticker + "</span></b><span style='font-size:8pt'> $" + \
-                        str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" + \
-                        str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + \
-                        "%) </span>"
-    if len(running_tick) < 1420:
-        running_tick += "<span style='color:white;'> - </span>"
+        faang += "<b><span style='font-size:7pt'>" + ticker + "</span></b><span style='font-size:8pt'> $" + \
+                 str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" + \
+                 str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + \
+                 "%) </span>"
+    st.markdown(faang + '</center>', unsafe_allow_html=True)
 
     url = 'https://money.cnn.com/data/commodities/'
     page = requests.get(url=url)
     soup = BeautifulSoup(page.content, 'html.parser')
+
+    commodities = '<center>'
 
     for commodity in soup.find_all('tr', class_='commBotRow'):
         c = commodity.td.strong.text
@@ -286,31 +285,26 @@ def run():
         change = commodity.find('td', class_='cnncol5').text
         pct = commodity.find('td', class_='cnncol6').text
         color = 'green' if "+" in change else 'red'
-        running_tick += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
-                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
-    if len(running_tick) < 2225:
-        running_tick += "<span style='color:white;'> - </span>"
+        commodities += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
+                       "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
+    st.markdown(commodities + '</center>', unsafe_allow_html=True)
 
+    other = '<center>'
     for item in [('%5ETNX/', '10yr Yield'), ('BTC-USD?p=BTC-USD', 'Bitcoin')]:
         endpoint, i = item
         last, change, pct, color = yahoo_finance(endpoint)
-        running_tick += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
-                        "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
+        other += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
+                 "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
 
-    forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=' + api_key).json()['quote']
+    forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=' + API_KEY).json()['quote']
     eur, gbp, jpy, chf, cad = str(round(forex['EUR'], 2)), str(round(forex['GBP'], 2)), str(round(forex['JPY'], 2)), \
                               str(round(forex['CHF'], 2)), str(round(forex['CAD'], 2))
-    running_tick += "<b><span style='font-size:7pt'> Euro </span></b><span style='font-size:8pt'>" + eur + " </span>" \
-                    "<b><span style='font-size:7pt'> Pound " + "</span></b>" \
-                                                               "<span style='font-size:8pt'>" + gbp + "</span>" \
-                    "<b><span style='font-size:7pt'> Yen " + "</span></b>" \
-                                                             "<span style='font-size:8pt'>" + jpy + "</span>" \
-                    "<b><span style='font-size:7pt'> Franc " + "</span></b>" \
-                                                             "<span style='font-size:8pt'>" + chf + "</span>" \
-                    "<b><span style='font-size:7pt'> Loonie " + "</span></b>" \
-                                                             "<span style='font-size:8pt'>" + cad + "</span>"
-
-    st.markdown(running_tick + "</p></center>", unsafe_allow_html=True)
+    other += "<b><span style='font-size:7pt'> Euro </span></b><span style='font-size:8pt'>" + eur + " </span>" \
+             "<b><span style='font-size:7pt'> Pound " + "</span></b><span style='font-size:8pt'>" + gbp + "</span>" \
+             "<b><span style='font-size:7pt'> Yen " + "</span></b><span style='font-size:8pt'>" + jpy + "</span>" \
+             "<b><span style='font-size:7pt'> Franc " + "</span></b><span style='font-size:8pt'>" + chf + "</span>" \
+             "<b><span style='font-size:7pt'> Loonie " + "</span></b><span style='font-size:8pt'>" + cad + "</span>"
+    st.markdown(other + "</center>", unsafe_allow_html=True)
 
     st.markdown('------------------------------------------')
     st.subheader("Overall Market News")

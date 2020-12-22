@@ -22,7 +22,7 @@ PORTFOLIO DIVERSIFICATION
     Options         (3 – 12%)
 """
 
-api_key = os.environ['api_key']
+API_KEY = os.environ['api_key']
 
 
 def annualized_return(portfolio):
@@ -46,7 +46,7 @@ def support_resistance(tick):
     candle = requests.get(
         'https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&from=' +
         str(int((datetime.today() - timedelta(days=30)).timestamp())) +
-        '&to=' + str(int((datetime.today()).timestamp())) + '&token=' + api_key).json()
+        '&to=' + str(int((datetime.today()).timestamp())) + '&token=' + API_KEY).json()
 
     high = max(candle['h'])
     low = min(candle['l'])

@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 import os
 
-api_key = os.environ['api_key']
+API_KEY = os.environ['api_key']
 # s_date = datetime(2020, 9, 1)
 
 resolution = 30
@@ -27,7 +27,7 @@ def support_resistance(tick):
     """
     candle = requests.get(
         'https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&from=' +
-        str(int(s_date.timestamp())) + '&to=' + str(int(e_date.timestamp())) + '&token=' + api_key).json()
+        str(int(s_date.timestamp())) + '&to=' + str(int(e_date.timestamp())) + '&token=' + API_KEY).json()
     high = max(candle['h'])
     low = min(candle['l'])
     close = candle['c'][0]

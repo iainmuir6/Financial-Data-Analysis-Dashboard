@@ -33,7 +33,7 @@ def run():
 
     :return
     """
-    api_key = os.environ['api_key']
+    API_KEY = os.environ['api_key']
 
     st.markdown("<h1 style='text-align:center;'> Stock Information </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
@@ -41,7 +41,7 @@ def run():
     ticker = st.text_input("Enter Ticker: ")
 
     if ticker:
-        quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
+        quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
 
@@ -56,12 +56,12 @@ def run():
 
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
-        api_key = os.environ['api_key']
+        API_KEY = os.environ['API_KEY']
 
         df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
                                        'from=' + str(int(s.timestamp())) +
                                        '&to=' + str(int(e.timestamp())) +
-                                       '&token=' + api_key).json()).drop(axis=1, labels='s')
+                                       '&token=' + API_KEY).json()).drop(axis=1, labels='s')
         df['t'] = [datetime.fromtimestamp(x) for x in df['t']]
 
         fig = make_subplots(
@@ -114,7 +114,7 @@ def run():
         st.subheader("Financials Summary")
         st.markdown('<u> Basic Financials </u>', unsafe_allow_html=True)
         basic_financials = requests.get('https://finnhub.io/api/v1/stock/metric?symbol=' + ticker +
-                                        '&metric=all&token=' + api_key).json()
+                                        '&metric=all&token=' + API_KEY).json()
         st.write("Reported Date: " + str(list(basic_financials['series']['annual'].values())[0][0]['period']))
 
         df1 = pd.DataFrame(
@@ -167,7 +167,7 @@ def run():
         st.write("----------------------------")
         st.markdown('<u> Financial Statements </u>', unsafe_allow_html=True)
         financial_statements = requests.get('https://finnhub.io/api/v1/stock/financials-reported?symbol=' + ticker +
-                                            '&token=' + api_key).json()['data'][0]['report']
+                                            '&token=' + API_KEY).json()['data'][0]['report']
         bs, cf, ic = financial_statements['bs'], financial_statements['cf'], financial_statements['ic']
 
         if st.checkbox("Show Balance Sheet"):
@@ -237,7 +237,7 @@ def run():
         ten_q = ''
         eight_k = ''
 
-        filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + api_key).json()
+        filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + API_KEY).json()
 
         for f in filings:
             if datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").date() < e:

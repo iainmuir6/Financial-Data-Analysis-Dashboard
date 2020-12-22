@@ -4,7 +4,6 @@ Iain Muir, iam9ez
 PROJECT DESCRIPTION
 
 TO-DO:
-    • Tickers
     • Reformat Market News
     • Translate Tickers to Company Names
     • Order Files with Delineated Functions

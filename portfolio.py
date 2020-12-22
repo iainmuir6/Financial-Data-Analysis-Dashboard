@@ -8,7 +8,7 @@ import numpy as np
 import requests
 import os
 
-api_key = os.environ['api_key']
+API_KEY = os.environ['api_key']
 
 
 class Portfolio:
@@ -57,7 +57,7 @@ class Portfolio:
 
         if cost is not None:
             volume = cost / (requests.get('https://finnhub.io/api/v1/quote?symbol=' +
-                                          ticker + '&token=' + api_key).json()['c'])
+                                          ticker + '&token=' + API_KEY).json()['c'])
 
         s = Stock(ticker, volume)
 
@@ -87,7 +87,7 @@ class Portfolio:
 
     def sell(self, ticker, volume=1.0, cost=None):
         current = requests.get(
-            'https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()['c']
+            'https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()['c']
 
         if cost is not None:
             volume = cost / current
@@ -117,7 +117,7 @@ class Portfolio:
     def update(self):
         for stock in self.stocks.values():
             stock.current_price = requests.get(
-                'https://finnhub.io/api/v1/quote?symbol=' + stock.ticker + '&token=' + api_key).json()['c']
+                'https://finnhub.io/api/v1/quote?symbol=' + stock.ticker + '&token=' + API_KEY).json()['c']
             stock.profit = round((stock.current_price * stock.volume) - stock.historic_cost, 2)
 
         self.market_value = round(sum(list(map(lambda s: s.current_price * s.volume, self.stocks.values()))), 2)
@@ -132,15 +132,15 @@ class Stock:
     def __init__(self, ticker, volume):
         self.ticker = ticker
         self.company = requests.get(
-            'https://finnhub.io/api/v1/stock/profile2?symbol=' + ticker + '&token=' + api_key).json()['name']
+            'https://finnhub.io/api/v1/stock/profile2?symbol=' + ticker + '&token=' + API_KEY).json()['name']
         self.current_price = requests.get(
-            'https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()['c']
+            'https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()['c']
         self.historic_cost = self.current_price * volume
         self.cost_queue = deque([(self.current_price, volume)])
         self.volume = volume
         self.profit = 0.0
         self.logo = requests.get(
-            'https://finnhub.io/api/v1/stock/profile2?symbol=' + ticker + '&token=' + api_key).json()['logo']
+            'https://finnhub.io/api/v1/stock/profile2?symbol=' + ticker + '&token=' + API_KEY).json()['logo']
 
     def add(self, new_stock):
         self.historic_cost += new_stock.current_price * new_stock.volume

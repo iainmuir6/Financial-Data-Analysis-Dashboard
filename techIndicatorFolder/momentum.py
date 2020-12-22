@@ -25,12 +25,12 @@ if __name__ == '__main__':
     tick = input("Input Ticker: ")
     s = datetime(datetime.today().year - 1, 1, 1)
     e = datetime.today()
-    api_key = os.environ['api_key']
+    API_KEY = os.environ['api_key']
 
     df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&' +
                                    'from=' + str(int(s.timestamp())) +
                                    '&to=' + str(int(e.timestamp())) +
-                                   '&token=' + api_key).json()).drop(axis=1, labels='s')
+                                   '&token=' + API_KEY).json()).drop(axis=1, labels='s')
     df = pd.DataFrame({
         'Date': pd.to_datetime(df['t']),
         'Open': df['o'],
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         'Volume': df['v'],
     })
 
-    d = {'token': api_key,
+    d = {'token': API_KEY,
          'ticker': tick,
          'startDate': s,
          'endDate': e,
