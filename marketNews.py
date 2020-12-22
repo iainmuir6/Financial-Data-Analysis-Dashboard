@@ -227,7 +227,7 @@ def run():
     """
 
     # start = time.time()
-
+    st.write(api_key)
     st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
                 "</h3>", unsafe_allow_html=True)
@@ -236,6 +236,7 @@ def run():
     running_tick = '<center><p class="small">'
     for ticker in ['FB', 'AAPL', 'AMZN', 'NFLX', 'GOOG']:
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key).json()
+        print('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + api_key)
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
 
