@@ -39,7 +39,6 @@ def run():
     st.write("------------------------------------------")
 
     st.write(os.environ.keys())
-    st.write(__name__)
     if os.path.exists("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle"):
         p = pickle.load(open(
             "/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles/portfolioB.pickle", 'rb'))
