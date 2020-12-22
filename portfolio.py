@@ -8,7 +8,7 @@ import numpy as np
 import requests
 import os
 
-API_KEY = os.environ['api_key']
+API_KEY = os.environ['API_KEY']
 
 
 class Portfolio:

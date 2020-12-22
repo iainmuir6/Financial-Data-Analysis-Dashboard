@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 import os
 
-API_KEY = os.environ['api_key']
+API_KEY = os.environ['API_KEY']
 # s_date = datetime(2020, 9, 1)
 
 resolution = 30

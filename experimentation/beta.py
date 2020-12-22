@@ -11,7 +11,7 @@ import time
 import os
 
 
-API_KEY = os.environ['api_key']
+API_KEY = os.environ['API_KEY']
 
 industries = {'Industrial Conglomerates': [('3M', 'MMM')],
               'Financial Services': [('American Express', 'AXP'), ('Goldman Sachs', 'GS')],

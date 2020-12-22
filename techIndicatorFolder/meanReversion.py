@@ -25,7 +25,7 @@ if __name__ == '__main__':
     tick = input("Input Ticker: ")
     s = datetime(datetime.today().year - 1, 1, 1)
     e = datetime.today()
-    API_KEY = os.environ['api_key']
+    API_KEY = os.environ['API_KEY']
 
     df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&' +
                                    'from=' + str(int(s.timestamp())) +

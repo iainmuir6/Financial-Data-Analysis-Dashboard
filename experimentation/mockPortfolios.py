@@ -22,7 +22,7 @@ PORTFOLIO DIVERSIFICATION
     Options         (3 – 12%)
 """
 
-API_KEY = os.environ['api_key']
+API_KEY = os.environ['API_KEY']
 
 
 def annualized_return(portfolio):

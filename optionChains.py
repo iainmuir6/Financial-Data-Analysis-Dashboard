@@ -85,7 +85,7 @@ def iron_condor(ticker):
     # graph
     # Max Profit
     # Max Loss
-    API_KEY = os.environ['api_key']
+    API_KEY = os.environ['API_KEY']
 
     st.markdown("<center> <h3> Iron Condor Options Strategy </h3> </center>", unsafe_allow_html=True)
     st.markdown(
@@ -144,7 +144,7 @@ def scrape(ticker, date):
 
     :return
     """
-    api_key = os.environ['api_key']
+    API_KEY = os.environ['API_KEY']
 
     url = "https://finance.yahoo.com/quote/" + ticker + "/options?p=" + ticker + "&date=" + str(date)
     page = requests.get(url)
@@ -153,7 +153,7 @@ def scrape(ticker, date):
 
     regex = re.compile(r'>([A-Za-z0-9,.+:-]+)')
     current_price = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker +
-                                 '&token=' + api_key).json()['c']
+                                 '&token=' + API_KEY).json()['c']
     st.markdown("<center> <h3> Current Price (" + ticker + "): " + str(current_price) + "</h3> </center>",
                 unsafe_allow_html=True)
 

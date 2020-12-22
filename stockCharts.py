@@ -33,7 +33,7 @@ def run():
 
     :return
     """
-    API_KEY = os.environ['api_key']
+    API_KEY = os.environ['API_KEY']
 
     st.markdown("<h1 style='text-align:center;'> Stock Information </h1>", unsafe_allow_html=True)
     st.write()  # Spacing

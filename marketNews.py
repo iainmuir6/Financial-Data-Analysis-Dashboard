@@ -10,7 +10,7 @@ import requests
 import time
 import os
 
-API_KEY = os.environ["api_key"]
+API_KEY = os.environ["API_KEY"]
 date = datetime.today().date()
 
 

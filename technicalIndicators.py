@@ -22,7 +22,7 @@ import os
 
 class TechnicalIndicators:
     def __init__(self, ticker):
-        self.token = os.environ['api_key']
+        self.token = os.environ['API_KEY']
         self.ticker = ticker
         self.start_date = datetime(datetime.today().year - 1, 1, 1)
         self.end_date = datetime.today()
