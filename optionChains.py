@@ -12,7 +12,6 @@ import requests
 import time
 import math
 import re
-import os
 
 
 def graph_option(data, price):

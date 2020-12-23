@@ -4,6 +4,7 @@
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
+from bs4 import BeautifulSoup
 from constants import API_KEY
 import streamlit as st
 import pandas as pd
@@ -22,6 +23,41 @@ def money_string(value: int):
         else:
             string += value[i]
     return (string + "$")[::-1]
+
+
+def scrape_statements(base, xml):
+    content = requests.get(xml).content
+    soup = BeautifulSoup(content, 'lxml')
+    reports = soup.find('myreports').find_all('report')
+
+    master_reports = {
+        'Income Statement': base + reports[1].htmlfilename.text,
+        'Comprehensive Income': base + reports[2].htmlfilename.text,
+        'Balance Sheet': base + reports[3].htmlfilename.text,
+        "Statement of Shareholder's Equity": base + reports[5].htmlfilename.text,
+        'Statement of Cash Flows': base + reports[6].htmlfilename.text
+    }
+
+    # master_reports[report.shortname.text] = base + report.htmlfilename.text
+    # for report in reports[:-2]:
+    #     print('-' * 100)
+    #     print(base + report.htmlfilename.text)
+    #     print(report.longname.text)
+    #     print(report.shortname.text)
+    #     print(report.menucategory.text)
+    #     print(report.position.text)
+
+    return master_reports
+
+
+def get_financials(ticker):
+    filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + API_KEY).json()
+    for f in filings:
+        if f['form'] == '10-K':
+            url = f['reportUrl']
+            xml_summary = (url[:url.rfind("/")] + '/FilingSummary.xml').replace('ix?doc=/', '')
+            base_url = xml_summary.replace('FilingSummary.xml', '')
+            return scrape_statements(base_url, xml_summary)
 
 
 def run():
@@ -160,61 +196,67 @@ def run():
 
         st.write("----------------------------")
         st.markdown('<u> Financial Statements </u>', unsafe_allow_html=True)
-        financial_statements = requests.get('https://finnhub.io/api/v1/stock/financials-reported?symbol=' + ticker +
-                                            '&token=' + API_KEY).json()['data'][0]['report']
-        bs, cf, ic = financial_statements['bs'], financial_statements['cf'], financial_statements['ic']
+        # financial_statements = requests.get('https://finnhub.io/api/v1/stock/financials-reported?symbol=' + ticker +
+        #                                     '&token=' + API_KEY).json()['data'][0]['report']
+        # bs, cf, ic = financial_statements['bs'], financial_statements['cf'], financial_statements['ic']
+        r = get_financials(ticker)
 
         if st.checkbox("Show Balance Sheet"):
             st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
-            assets, liability_se = st.beta_columns(2)
-            assets.subheader("Assets")
-            liability_se.subheader("Liabilities and Sharholders Equity")
+            url = r['Balance Sheet']
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+            st.write(soup.find('table'), unsafe_allow_html=True)
 
-            a = True
-            total_assets = 0
-            total_liabilities = 0
-
-            for item in bs:
-                bold = False
-                if item['value'] == 'N/A':
-                    continue
-                elif a:
-                    if item['label'] == 'ASSETS:':
-                        assets.markdown('<center><u> Total Assets: ' + money_string(total_assets) + '</u></center>',
-                                        unsafe_allow_html=True)
-                        a = False
-                        continue
-                    elif item['label'] == 'Current assets:' or item['label'] == 'Total non-current assets':
-                        total_assets += item['value']
-                        bold = True
-                    assets.markdown("<p style='font-size:" + ('8' if len(item['label']) > 40 else '10') + "pt;'>  " +
-                                    ("<b>" if bold else "") + item['label'].title() + "<span style='float:right'> " +
-                                    money_string(item['value']) + "</span>" + ("</b>" if bold else "") + "</p>",
-                                    unsafe_allow_html=True)
-                else:
-                    if 'LIABILITIES AND SHAREHOLDERS' in item['label']:
-                        if item['concept'] == 'Liabilities':
-                            liability_se.markdown('<center><u> Total Liabilities: ' + money_string(total_liabilities) +
-                                                  '</u></center>', unsafe_allow_html=True)
-                            continue
-                        else:
-                            liability_se.markdown('<center><u> Total Sharholders Equity: ' +
-                                                  money_string(item['value'] - total_liabilities) + '</u></center>',
-                                                  unsafe_allow_html=True)
-                            break
-                    elif item['label'] == 'Total current liabilities' or item['label'] == 'Total non-current liabilities':
-                        total_liabilities += item['value']
-                        bold = True
-                    elif item['label'] == 'Retained earnings':
-                        bold = True
-                    elif 'Common stock and additional paid-in capital' in item['label']:
-                        item['label'] = 'Common stock and additional paid-in capital'
-                        bold = True
-
-                    liability_se.markdown("<p style='font-size:" + ('8' if len(item['label']) > 40 else '10') +
-                                          "pt;'>  " + ("<b>" if bold else "") + item['label'].title() +
-                                          "<span style='float:right'> " + money_string(item['value']) + "</span>" +
-                                          ("</b>" if bold else "") + "</p>", unsafe_allow_html=True)
+            # assets, liability_se = st.beta_columns(2)
+            # assets.subheader("Assets")
+            # liability_se.subheader("Liabilities and Sharholders Equity")
+            #
+            # a = True
+            # total_assets = 0
+            # total_liabilities = 0
+            #
+            # for item in bs:
+            #     bold = False
+            #     if item['value'] == 'N/A':
+            #         continue
+            #     elif a:
+            #         if item['label'] == 'ASSETS:':
+            #             assets.markdown('<center><u> Total Assets: ' + money_string(total_assets) + '</u></center>',
+            #                             unsafe_allow_html=True)
+            #             a = False
+            #             continue
+            #         elif item['label'] == 'Current assets:' or item['label'] == 'Total non-current assets':
+            #             total_assets += item['value']
+            #             bold = True
+            #         assets.markdown("<p style='font-size:" + ('8' if len(item['label']) > 40 else '10') + "pt;'>  " +
+            #                         ("<b>" if bold else "") + item['label'].title() + "<span style='float:right'> " +
+            #                         money_string(item['value']) + "</span>" + ("</b>" if bold else "") + "</p>",
+            #                         unsafe_allow_html=True)
+            #     else:
+            #         if 'LIABILITIES AND SHAREHOLDERS' in item['label']:
+            #             if item['concept'] == 'Liabilities':
+            #                 liability_se.markdown('<center><u> Total Liabilities: ' + money_string(total_liabilities) +
+            #                                       '</u></center>', unsafe_allow_html=True)
+            #                 continue
+            #             else:
+            #                 liability_se.markdown('<center><u> Total Sharholders Equity: ' +
+            #                                       money_string(item['value'] - total_liabilities) + '</u></center>',
+            #                                       unsafe_allow_html=True)
+            #                 break
+            #         elif item['label'] == 'Total current liabilities' or item['label'] == 'Total non-current liabilities':
+            #             total_liabilities += item['value']
+            #             bold = True
+            #         elif item['label'] == 'Retained earnings':
+            #             bold = True
+            #         elif 'Common stock and additional paid-in capital' in item['label']:
+            #             item['label'] = 'Common stock and additional paid-in capital'
+            #             bold = True
+            #
+            #         liability_se.markdown("<p style='font-size:" + ('8' if len(item['label']) > 40 else '10') +
+            #                               "pt;'>  " + ("<b>" if bold else "") + item['label'].title() +
+            #                               "<span style='float:right'> " + money_string(item['value']) + "</span>" +
+            #                               ("</b>" if bold else "") + "</p>", unsafe_allow_html=True)
 
         if st.checkbox("Show Statement of Cash Flows"):
             st.write("CASH FLOWS")

@@ -14,7 +14,11 @@ PORTFOLIO DIVERSIFICATION
 
 
 # from constants import API_KEY
-# import requests
+from bs4 import BeautifulSoup
+from constants import API_KEY
+import requests
+# import yfinance as yf
+
 
 # largeCap = list(requests.get(
 #     'https://finnhub.io/api/v1/index/constituents?symbol=^GSPC&token=' + api_key).json()['constituents'])

@@ -15,6 +15,8 @@ TO-DO:
         • Descriptions of each
     • COVID Data
     • Documentation
+
+streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/app.py
 """
 
 import streamlit as st
