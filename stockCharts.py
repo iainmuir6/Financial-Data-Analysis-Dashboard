@@ -142,63 +142,64 @@ def run():
         st.plotly_chart(fig)
 
         st.subheader("Financials Summary")
-        st.markdown('<u> Basic Financials </u>', unsafe_allow_html=True)
+
         basic_financials = requests.get('https://finnhub.io/api/v1/stock/metric?symbol=' + ticker +
                                         '&metric=all&token=' + API_KEY).json()
-        st.write("Reported Date: " + str(list(basic_financials['series']['annual'].values())[0][0]['period']))
+        if bool(basic_financials['series']):
+            st.markdown('<u> Basic Financials </u>', unsafe_allow_html=True)
+            st.write("Reported Date: " + str(list(basic_financials['series']['annual'].values())[0][0]['period']))
 
-        df1 = pd.DataFrame(
-            {
-                'Metric': [k for k in basic_financials['series']['annual'].keys()],
-                'Value': [round(v[0]['v'], 4) for v in basic_financials['series']['annual'].values()]
-            }
-        )
-        df2 = pd.DataFrame(
-            {
-                'Metric': [k for k in basic_financials['metric'].keys()],
-                'Value': [v for v in basic_financials['metric'].values()]
-            }
-        )
-
-        df = df1.append(df2).reset_index().drop('index', axis=1)
-        st.dataframe(df)
-        selection = st.selectbox("Select Metric:", df['Metric'].values)
-        val = df['Value'][list(df['Metric'].values).index(selection)]
-
-        try:
-            val = val.values[0]
-        except AttributeError:
-            val = val
-        st.write(selection + ": " + str(val))
-
-        if st.checkbox("Show Formulas"):
-            st.markdown(
-                "* **Cash Ratio:** (Current Assets - Inventory) / Current Liabilities \n"
-                "* **Current Ratio:** Current Assets / Current Liabilities \n"
-                "* **EBIT Per Share:** EBIT / Average Number of Shares Outstanding \n"
-                "* **EPS:** Net Income / Average Number of Shares Outstanding \n"
-                "* **Gross Margin:** (Total Revenue - Cost of Goods Sold) / Total Revenue \n"
-                "* **LT Debt to Total Asset:** LT Debt / Total Assets \n"
-                "* **LT Debt to Total Capital:** LT Debt / (LT Debt + Total Equity) \n"
-                "* **LT Debt to Total Equity:** LT Debt / Total Equity \n"
-                "* **Net Debt to Total Capital:** (ST+LT Debt - Cash) / ((ST+LT Debt - Cash)"
-                " + Total Equity) \n"
-                "* **Net Debt to Total Equity:** (ST Debt + LT Debt - Cash) / Total Equity \n"
-                "* **Net Margin:** Net Income / Total Revenue \n"
-                "* **Operating Margin:** Operating Income (EBIT) / Total Revenue \n"
-                "* **Pretax Margin:** Pretax Income (EBT) / Total Revenue \n"
-                "* **Sales Per Share:** Total Revenue / Average Number of Shares Outstanding  \n"
-                "* **SGA to Sales:** SGA Expense / Total Revenue \n"
-                "* **Debt/Equity Ratio:** (ST Debt + LT Debt + Other Fixed Payments) / Total Equity \n"
-                "* **Total Debt to Total Asset:** (ST Debt + LT Debt + Other Fixed Payments) / Total Assets \n"
-                "* **Total Debt to Total Capital:** Total Debt / (Total Debt + Total Equity) \n"
+            df1 = pd.DataFrame(
+                {
+                    'Metric': [k for k in basic_financials['series']['annual'].keys()],
+                    'Value': [round(v[0]['v'], 4) for v in basic_financials['series']['annual'].values()]
+                }
+            )
+            df2 = pd.DataFrame(
+                {
+                    'Metric': [k for k in basic_financials['metric'].keys()],
+                    'Value': [v for v in basic_financials['metric'].values()]
+                }
             )
 
-        st.write("----------------------------")
+            df = df1.append(df2).reset_index().drop('index', axis=1)
+            st.dataframe(df)
+            selection = st.selectbox("Select Metric:", df['Metric'].values)
+            val = df['Value'][list(df['Metric'].values).index(selection)]
+
+            try:
+                val = val.values[0]
+            except AttributeError:
+                val = val
+            st.write(selection + ": " + str(val))
+
+            if st.checkbox("Show Formulas"):
+                st.markdown(
+                    "* **Cash Ratio:** (Current Assets - Inventory) / Current Liabilities \n"
+                    "* **Current Ratio:** Current Assets / Current Liabilities \n"
+                    "* **EBIT Per Share:** EBIT / Average Number of Shares Outstanding \n"
+                    "* **EPS:** Net Income / Average Number of Shares Outstanding \n"
+                    "* **Gross Margin:** (Total Revenue - Cost of Goods Sold) / Total Revenue \n"
+                    "* **LT Debt to Total Asset:** LT Debt / Total Assets \n"
+                    "* **LT Debt to Total Capital:** LT Debt / (LT Debt + Total Equity) \n"
+                    "* **LT Debt to Total Equity:** LT Debt / Total Equity \n"
+                    "* **Net Debt to Total Capital:** (ST+LT Debt - Cash) / ((ST+LT Debt - Cash)"
+                    " + Total Equity) \n"
+                    "* **Net Debt to Total Equity:** (ST Debt + LT Debt - Cash) / Total Equity \n"
+                    "* **Net Margin:** Net Income / Total Revenue \n"
+                    "* **Operating Margin:** Operating Income (EBIT) / Total Revenue \n"
+                    "* **Pretax Margin:** Pretax Income (EBT) / Total Revenue \n"
+                    "* **Sales Per Share:** Total Revenue / Average Number of Shares Outstanding  \n"
+                    "* **SGA to Sales:** SGA Expense / Total Revenue \n"
+                    "* **Debt/Equity Ratio:** (ST Debt + LT Debt + Other Fixed Payments) / Total Equity \n"
+                    "* **Total Debt to Total Asset:** (ST Debt + LT Debt + Other Fixed Payments) / Total Assets \n"
+                    "* **Total Debt to Total Capital:** Total Debt / (Total Debt + Total Equity) \n"
+                )
+
+            st.write("----------------------------")
+
         st.markdown('<u> Financial Statements </u>', unsafe_allow_html=True)
-        # financial_statements = requests.get('https://finnhub.io/api/v1/stock/financials-reported?symbol=' + ticker +
-        #                                     '&token=' + API_KEY).json()['data'][0]['report']
-        # bs, cf, ic = financial_statements['bs'], financial_statements['cf'], financial_statements['ic']
+
         r = get_financials(ticker)
 
         if st.checkbox("Show Balance Sheet"):
@@ -206,63 +207,27 @@ def run():
             url = r['Balance Sheet']
             page = requests.get(url)
             soup = BeautifulSoup(page.content, 'html.parser')
+            for a in soup.findAll('a'):
+                a.replaceWithChildren()
             st.write(soup.find('table'), unsafe_allow_html=True)
 
-            # assets, liability_se = st.beta_columns(2)
-            # assets.subheader("Assets")
-            # liability_se.subheader("Liabilities and Sharholders Equity")
-            #
-            # a = True
-            # total_assets = 0
-            # total_liabilities = 0
-            #
-            # for item in bs:
-            #     bold = False
-            #     if item['value'] == 'N/A':
-            #         continue
-            #     elif a:
-            #         if item['label'] == 'ASSETS:':
-            #             assets.markdown('<center><u> Total Assets: ' + money_string(total_assets) + '</u></center>',
-            #                             unsafe_allow_html=True)
-            #             a = False
-            #             continue
-            #         elif item['label'] == 'Current assets:' or item['label'] == 'Total non-current assets':
-            #             total_assets += item['value']
-            #             bold = True
-            #         assets.markdown("<p style='font-size:" + ('8' if len(item['label']) > 40 else '10') + "pt;'>  " +
-            #                         ("<b>" if bold else "") + item['label'].title() + "<span style='float:right'> " +
-            #                         money_string(item['value']) + "</span>" + ("</b>" if bold else "") + "</p>",
-            #                         unsafe_allow_html=True)
-            #     else:
-            #         if 'LIABILITIES AND SHAREHOLDERS' in item['label']:
-            #             if item['concept'] == 'Liabilities':
-            #                 liability_se.markdown('<center><u> Total Liabilities: ' + money_string(total_liabilities) +
-            #                                       '</u></center>', unsafe_allow_html=True)
-            #                 continue
-            #             else:
-            #                 liability_se.markdown('<center><u> Total Sharholders Equity: ' +
-            #                                       money_string(item['value'] - total_liabilities) + '</u></center>',
-            #                                       unsafe_allow_html=True)
-            #                 break
-            #         elif item['label'] == 'Total current liabilities' or item['label'] == 'Total non-current liabilities':
-            #             total_liabilities += item['value']
-            #             bold = True
-            #         elif item['label'] == 'Retained earnings':
-            #             bold = True
-            #         elif 'Common stock and additional paid-in capital' in item['label']:
-            #             item['label'] = 'Common stock and additional paid-in capital'
-            #             bold = True
-            #
-            #         liability_se.markdown("<p style='font-size:" + ('8' if len(item['label']) > 40 else '10') +
-            #                               "pt;'>  " + ("<b>" if bold else "") + item['label'].title() +
-            #                               "<span style='float:right'> " + money_string(item['value']) + "</span>" +
-            #                               ("</b>" if bold else "") + "</p>", unsafe_allow_html=True)
-
         if st.checkbox("Show Statement of Cash Flows"):
-            st.write("CASH FLOWS")
+            st.markdown("<h3 style='text-align:center;'> Statement of Cash Flows </h3>", unsafe_allow_html=True)
+            url = r['Statement of Cash Flows']
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+            for a in soup.findAll('a'):
+                a.replaceWithChildren()
+            st.write(soup.find('table'), unsafe_allow_html=True)
 
         if st.checkbox("Show Income Statement"):
-            st.write("INCOME STATEMENT")
+            st.markdown("<h3 style='text-align:center;'> Income Statement </h3>", unsafe_allow_html=True)
+            url = r['Income Statement']
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+            for a in soup.findAll('a'):
+                a.replaceWithChildren()
+            st.write(soup.find('table'), unsafe_allow_html=True)
 
         st.write("----------------------------")
 
