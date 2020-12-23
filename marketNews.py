@@ -245,6 +245,11 @@ def earnings_calendar():
         )
 
 
+def covid19():
+    data = requests.get('https://finnhub.io/api/v1/covid19/us?token=' + API_KEY).json()
+    print(data)
+
+
 def run():
     """
 
@@ -328,6 +333,9 @@ def run():
     st.markdown('------------------------------------------')
     st.subheader("IPO Calendar")
     ipo_calendar()
+    st.markdown('------------------------------------------')
+    st.subheader("Coronarvirus Data")
+    covid19()
 
 
 if __name__ == '__main__':

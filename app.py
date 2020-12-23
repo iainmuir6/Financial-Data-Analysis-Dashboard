@@ -5,11 +5,8 @@ PROJECT DESCRIPTION
 
 TO-DO:
     • Reformat Market News
-    • Translate Tickers to Company Names
-    • Order Files with Delineated Functions
-    • Order IPO Calendar by date
+    • Order Files with Functions
     • Insert Exceptions (everywhere)
-    • Financial Statements
     • Iron Condor
     • Remaining Technical Indicators
         • Descriptions of each

@@ -15,10 +15,40 @@ PORTFOLIO DIVERSIFICATION
 
 # from constants import API_KEY
 from bs4 import BeautifulSoup
-from constants import API_KEY
+import plotly.graph_objects as go
+from constants import API_KEY, STATE_CODES
 import requests
+import pandas as pd
 # import yfinance as yf
 
+
+def covid19():
+    states = requests.get('https://finnhub.io/api/v1/covid19/us?token=' + API_KEY).json()
+    data = [[s['state'], STATE_CODES[s['state']], s['case'], s['death']]
+            for s in states if s['state'] in STATE_CODES.keys()]
+    df = pd.DataFrame(data, columns=['State', 'Code', 'Cases', 'Deaths']).set_index('State')
+    print(df)
+
+
+    data = [dict(
+        type="choropleth",
+        autocolorscale=True,
+        locations =df['Code'],
+        z=df['Cases'].astype(float),
+        locationmode='USA-states',
+        text=df.index,
+        marker=dict(
+        line=dict(
+        color='rgb(255,255,255)',
+        width=2
+        ))
+    )]
+
+    fig = go.Figure(data=data)
+    fig.show()
+
+
+covid19()
 
 # largeCap = list(requests.get(
 #     'https://finnhub.io/api/v1/index/constituents?symbol=^GSPC&token=' + api_key).json()['constituents'])
