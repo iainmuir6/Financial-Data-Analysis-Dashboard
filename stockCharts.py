@@ -206,16 +206,16 @@ def run():
             st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
             url = r['Balance Sheet']
             page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'html.parser')
+            soup = BeautifulSoup(page.content, 'lxml')
             for a in soup.findAll('a'):
                 a.replaceWithChildren()
-            st.write(soup.find('table'), unsafe_allow_html=True)
+            st.markdown(soup.find('table'), unsafe_allow_html=True)
 
         if st.checkbox("Show Statement of Cash Flows"):
             st.markdown("<h3 style='text-align:center;'> Statement of Cash Flows </h3>", unsafe_allow_html=True)
             url = r['Statement of Cash Flows']
             page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'html.parser')
+            soup = BeautifulSoup(page.content, 'lxml')
             for a in soup.findAll('a'):
                 a.replaceWithChildren()
             st.write(soup.find('table'), unsafe_allow_html=True)
@@ -224,7 +224,7 @@ def run():
             st.markdown("<h3 style='text-align:center;'> Income Statement </h3>", unsafe_allow_html=True)
             url = r['Income Statement']
             page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'html.parser')
+            soup = BeautifulSoup(page.content, 'lxml')
             for a in soup.findAll('a'):
                 a.replaceWithChildren()
             st.write(soup.find('table'), unsafe_allow_html=True)
