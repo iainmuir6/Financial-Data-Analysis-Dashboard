@@ -3,6 +3,7 @@
 
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
+from urllib.request import urlretrieve
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
 from constants import API_KEY
@@ -205,11 +206,13 @@ def run():
         if st.checkbox("Show Balance Sheet"):
             st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
             url = r['Balance Sheet']
+            stylesheet = url[:url.rfind("/")] + "/report.css"
+            urlretrieve(stylesheet, 'report.css')
             page = requests.get(url)
             soup = BeautifulSoup(page.content, 'lxml')
             for a in soup.findAll('a'):
                 a.replaceWithChildren()
-            st.markdown(soup.find('table'), unsafe_allow_html=True)
+            st.markdown(soup, unsafe_allow_html=True)
 
         if st.checkbox("Show Statement of Cash Flows"):
             st.markdown("<h3 style='text-align:center;'> Statement of Cash Flows </h3>", unsafe_allow_html=True)

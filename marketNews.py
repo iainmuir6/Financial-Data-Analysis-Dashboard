@@ -1,12 +1,14 @@
 # Iain Muir
 # iam9ez
 
+from experimentation.research import largestCap
+from constants import API_KEY, STATE_CODES
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
-from experimentation.research import largestCap
 from bs4 import BeautifulSoup
-from constants import API_KEY
+import plotly.express as px
 import streamlit as st
+import pandas as pd
 import requests
 import time
 
@@ -197,7 +199,7 @@ def ipo_calendar():
             continue
 
     for d, values in d.items():
-        st.markdown("<ul>" + d + '</ul>', unsafe_allow_html=True)
+        st.markdown("<u>" + d.strip() + '</u>', unsafe_allow_html=True)
         for val in values:
             bold = "**" if val[2] > 1000000000 else ""
             st.markdown(
@@ -225,7 +227,7 @@ def earnings_calendar():
         }
     """
     earnings = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
-                            str(date - timedelta(days=30)) + '&' +
+                            str(date - timedelta(days=7)) + '&' +
                             str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
     for event in earnings['earningsCalendar']:
         if event['symbol'] not in largestCap:
@@ -246,8 +248,37 @@ def earnings_calendar():
 
 
 def covid19():
-    data = requests.get('https://finnhub.io/api/v1/covid19/us?token=' + API_KEY).json()
-    print(data)
+    states = requests.get('https://finnhub.io/api/v1/covid19/us?token=' + API_KEY).json()
+    data = [[s['state'], STATE_CODES[s['state']], s['case'], s['death']]
+            for s in states if s['state'] in STATE_CODES.keys()]
+    df = pd.DataFrame(data, columns=['State', 'Code', 'Cases', 'Deaths']).set_index('State')
+
+    st.markdown('<center><h2> Total Cases: ' + money_string(df['Cases'].sum())[1:] + '</center></h2>',
+                unsafe_allow_html=True)
+    st.markdown('<center><h3> Total Deaths: ' + money_string(df['Deaths'].sum())[1:] + '</center></h3>',
+                unsafe_allow_html=True)
+
+    st.write("------------------------------")
+    selection = st.checkbox("Cases")
+    if selection:
+        fig = px.choropleth(df['Cases'],
+                            locations=df['Code'],
+                            locationmode='USA-states',
+                            color='Cases',
+                            color_continuous_scale='inferno',
+                            scope='usa')
+
+        st.plotly_chart(fig)
+    selection2 = st.checkbox("Deaths")
+    if selection2:
+        fig = px.choropleth(df['Deaths'],
+                            locations=df['Code'],
+                            locationmode='USA-states',
+                            color='Deaths',
+                            color_continuous_scale='inferno',
+                            scope='usa')
+
+        st.plotly_chart(fig)
 
 
 def run():

@@ -10,7 +10,6 @@ import pandas as pd
 import numpy as np
 import requests
 import time
-import math
 import re
 
 
@@ -53,23 +52,48 @@ def graph_iron_condor(orders_df, price):
     """
 
     long_call, short_call, short_put, long_put = orders_df.values
+    cost = 100 * orders_df['lastPrice'].astype(float).sum()
 
-    long_call = (float(long_call[2]), float(long_call[2]) + float(long_call[3]))
-    short_call = ()
-    short_put = ()
-    long_put = ()
+    long_call = float(long_call[2])
+    short_call = float(short_call[2])
+    short_put = float(short_put[2])
+    long_put = float(long_put[2])
+    print(long_call, short_call, short_put, long_put)
 
     scale = 1 + (100 / price)
     x = range(int(price * (1 / scale)), int(price * scale))
     y = []
 
     for dollar in x:
-        continue
+        revenue = 0
+        if dollar > long_call:
+            revenue += (dollar - long_call) * 100
+        if dollar < long_put:
+            revenue += (long_put - dollar) * 100
+            print("b", revenue)
+        if dollar < short_call:
+            revenue += (short_call - dollar) * 100
+            print("c", revenue)
+        if dollar > short_call:
+            print("d")
+            cost += (dollar - short_call) * 100
+        if dollar > short_put:
+            print("e")
+            revenue += (dollar - short_put) * 100
+        if dollar < short_put:
+            cost += (short_put - dollar) * 100
+            print("f", cost)
+        print("$" + str(dollar), "Rev:", revenue, "Cost:", cost)
+
+        y.append(revenue - cost)
+        break
 
     plt.plot(x, y)
     plt.axvline(x=price, linestyle='dotted')
     plt.plot(x, [0 for _ in range(len(x))], color='black', linewidth=2)
-    plt.show()
+    fig = plt.gcf()
+
+    st.pyplot(fig)
 
 
 def highlight(df):
@@ -119,9 +143,13 @@ def iron_condor(ticker):
 
         current_price = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker +
                                      '&token=' + API_KEY).json()['c']
-        rounded = float(math.ceil(current_price / 10) * 10)
-        long_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 35.0].values[0]
-        short_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 30.0].values[0]
+        remainder = round(current_price, 0) % 10
+        rounded = round(current_price, 0) + (-remainder if remainder < 2.5
+                                             else 5 - remainder if remainder < 7.5
+                                             else 10 - remainder if remainder < 10
+                                             else 0)
+        long_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 30.0].values[0]
+        short_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 25.0].values[0]
         short_put = put_df.loc[put_df['strike'].str.replace(",", "").astype(float) == rounded - 35.0].values[0]
         long_put = put_df.loc[put_df['strike'].str.replace(",", "").astype(float) == rounded - 40.0].values[0]
 
@@ -134,7 +162,8 @@ def iron_condor(ticker):
             "* Days til Expiration: " + str((expiration.date() - datetime.today().date()).days)
         )
         st.dataframe(orders[['contractName', 'strike', 'lastPrice', 'volume', 'impliedVolatility']])
-        # graph_iron_condor(orders, current_price)
+        st.write("Total Price: $" + str(100 * orders['lastPrice'].astype(float).sum()))
+        graph_iron_condor(orders, current_price)
 
 
 def scrape(ticker, date):
