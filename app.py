@@ -7,13 +7,17 @@ TO-DO:
     • Reformat Market News
     • Order Files with Functions
     • Insert Exceptions (everywhere)
+        • Custom Error Message on Streamlit
     • Iron Condor
     • Remaining Technical Indicators
         • Descriptions of each
     • COVID Data
     • Documentation
+    • Display Progress for Loading
+    • Link to Earnings for Calendar
 
 streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/app.py
+https://share.streamlit.io/iainmuir6/stockMarket/master/app.py
 """
 
 import streamlit as st

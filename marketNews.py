@@ -76,6 +76,33 @@ def market_news():
     st.markdown(text + "</ul></p>", unsafe_allow_html=True)
 
 
+def market_news2():
+    """
+        RESPONSE FORMAT:
+        {
+            "category": str,
+            "datetime": timestamp,
+            "headline": str,
+            "id": int,
+            "image": str (link),
+            "related": str (ticker or blank),
+            "source": str (news company),
+            "summary": str,
+            "url": str (link)
+        },
+    """
+
+    m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + API_KEY).json()
+    left, right = st.beta_columns(2)
+    for i, news in enumerate(m_news):
+        if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
+            col = left if i % 2 == 0 else right
+            col.markdown("<center><img src='" + news['image'] + "' height='150'/></center>",
+                         unsafe_allow_html=True)
+            col.markdown(news['headline'] + " (<a href='" + news['url'] + "'>" + news['source'] + "</a>)",
+                         unsafe_allow_html=True)
+
+
 def company_news(ticker):
     """
         RESPONSE FORMAT:
@@ -229,6 +256,10 @@ def earnings_calendar():
     earnings = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
                             str(date - timedelta(days=7)) + '&' +
                             str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
+    if not any(map(lambda e: e['symbol'] in largestCap, earnings['earningsCalendar'])):
+        st.write('No Earnings to Report!')
+        return
+
     for event in earnings['earningsCalendar']:
         if event['symbol'] not in largestCap:
             continue
@@ -350,7 +381,7 @@ def run():
 
     st.markdown('------------------------------------------')
     st.subheader("Overall Market News")
-    market_news()
+    market_news2()
     st.markdown('------------------------------------------')
     st.subheader("Company News and Analyst Sentiments")
     tick = st.text_input("Input Ticker:")
