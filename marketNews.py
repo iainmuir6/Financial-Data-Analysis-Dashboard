@@ -103,6 +103,30 @@ def market_news2():
                          unsafe_allow_html=True)
 
 
+def market_news3():
+    """
+        RESPONSE FORMAT:
+        {
+            "category": str,
+            "datetime": timestamp,
+            "headline": str,
+            "id": int,
+            "image": str (link),
+            "related": str (ticker or blank),
+            "source": str (news company),
+            "summary": str,
+            "url": str (link)
+        },
+    """
+
+    m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + API_KEY).json()
+    for i, news in enumerate(m_news):
+        if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
+            st.markdown("<p><img src='" + news['image'] + "' height='75' align='left'/>" + news['headline'] + "</p>",
+                        unsafe_allow_html=True)
+            # st.markdown(news['headline'] + " (<a href='" + news['url'] + "'>" + news['source'] + "</a>)")
+
+
 def company_news(ticker):
     """
         RESPONSE FORMAT:

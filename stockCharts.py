@@ -26,32 +26,71 @@ def money_string(value: int):
     return (string + "$")[::-1]
 
 
+def create_table(url):
+    html = '<table>'
+
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'lxml')
+    for a in soup.findAll('a'):
+        a.replaceWithChildren()
+
+    for tr in soup.find_all('tr'):
+        html += '<tr>'
+        try:
+            c = tr['class']
+            color = 'blue' if 'e' in c else 'white' if 'o' in c else 'grey'
+            underline = True if 'u' in c else False
+
+            for each in tr.find_all('td'):
+                text = each.text.lower().strip()
+                if 'par value' in text:
+                    text = 'Common Stock and Additional Paid-In Capital'
+
+                html += '<td>' + text.title() + '</td>'
+        except KeyError:
+            headings = True
+
+        html += '</tr>'
+
+    print(html + '</table>')
+    return html + '</table>'
+
+
 def scrape_statements(base, xml):
     content = requests.get(xml).content
     soup = BeautifulSoup(content, 'lxml')
     reports = soup.find('myreports').find_all('report')
 
-    master_reports = {
-        'Income Statement': base + reports[1].htmlfilename.text,
-        'Comprehensive Income': base + reports[2].htmlfilename.text,
-        'Balance Sheet': base + reports[3].htmlfilename.text,
-        "Statement of Shareholder's Equity": base + reports[5].htmlfilename.text,
-        'Statement of Cash Flows': base + reports[6].htmlfilename.text
-    }
+    # master_reports = {
+    #     'Income Statement': base + reports[1].htmlfilename.text,
+    #     'Comprehensive Income': base + reports[2].htmlfilename.text,
+    #     'Balance Sheet': base + reports[3].htmlfilename.text,
+    #     "Statement of Shareholder's Equity": base + reports[5].htmlfilename.text,
+    #     'Statement of Cash Flows': base + reports[6].htmlfilename.text
+    # }
 
-    # master_reports[report.shortname.text] = base + report.htmlfilename.text
-    # for report in reports[:-2]:
-    #     print('-' * 100)
-    #     print(base + report.htmlfilename.text)
-    #     print(report.longname.text)
-    #     print(report.shortname.text)
-    #     print(report.menucategory.text)
-    #     print(report.position.text)
+    master_reports = {}
+    other = {}
 
-    return master_reports
+    for report in reports[:-2]:
+        link = base + report.htmlfilename.text
+        name = report.shortname.text.lower()
+        if report.menucategory.text == 'Statements':
+            key = 'Comprehensive Income Statement' if 'comprehensive' in name \
+                else 'Income Statement' if ('operations' in name or 'income' in name) and 'parenthetical' not in name \
+                else 'Balance Sheet' if 'balance' in name and 'parenthetical' not in name \
+                else "Statement of Shareholder's Equity" if 'shareholder' in name or 'stockholder' in name \
+                else 'Statement of Cash Flows' if 'flow' in name \
+                else None
+            if key is not None:
+                master_reports[key] = link
+        else:
+            other[name.title()] = link
+
+    return master_reports, other
 
 
-def get_financials(ticker):
+def get_reports(ticker):
     filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + API_KEY).json()
     for f in filings:
         if f['form'] == '10-K':
@@ -59,6 +98,8 @@ def get_financials(ticker):
             xml_summary = (url[:url.rfind("/")] + '/FilingSummary.xml').replace('ix?doc=/', '')
             base_url = xml_summary.replace('FilingSummary.xml', '')
             return scrape_statements(base_url, xml_summary)
+    if True:
+        st.warning('No 10-Ks on file, check below for other reports')
 
 
 def run():
@@ -201,18 +242,12 @@ def run():
 
         st.markdown('<u> Financial Statements </u>', unsafe_allow_html=True)
 
-        r = get_financials(ticker)
+        r, o = get_reports(ticker)
 
         if st.checkbox("Show Balance Sheet"):
             st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
-            url = r['Balance Sheet']
-            stylesheet = url[:url.rfind("/")] + "/report.css"
-            urlretrieve(stylesheet, 'report.css')
-            page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'lxml')
-            for a in soup.findAll('a'):
-                a.replaceWithChildren()
-            st.markdown(soup, unsafe_allow_html=True)
+            table = create_table(r['Balance Sheet'])
+            st.markdown(table, unsafe_allow_html=True)
 
         if st.checkbox("Show Statement of Cash Flows"):
             st.markdown("<h3 style='text-align:center;'> Statement of Cash Flows </h3>", unsafe_allow_html=True)
@@ -231,6 +266,9 @@ def run():
             for a in soup.findAll('a'):
                 a.replaceWithChildren()
             st.write(soup.find('table'), unsafe_allow_html=True)
+
+        other_report = st.selectbox("Other Filed Reports:", list(o.keys()))
+        st.write("Link: " + o[other_report])
 
         st.write("----------------------------")
 

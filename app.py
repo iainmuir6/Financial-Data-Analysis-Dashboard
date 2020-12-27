@@ -5,6 +5,7 @@ PROJECT DESCRIPTION
 
 TO-DO:
     • Reformat Market News
+    • Reformat Statement Tables
     • Order Files with Functions
     • Insert Exceptions (everywhere)
         • Custom Error Message on Streamlit
@@ -15,6 +16,7 @@ TO-DO:
     • Documentation
     • Display Progress for Loading
     • Link to Earnings for Calendar
+    • Combine Financial Statements and Filings loop
 
 streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/app.py
 https://share.streamlit.io/iainmuir6/stockMarket/master/app.py
