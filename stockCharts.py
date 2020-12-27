@@ -27,33 +27,38 @@ def money_string(value: int):
 
 
 def create_table(url):
-    html = '<table>'
+
+    html = '''<html>
+                <head>
+                    <style> 
+                    table,
+                    th,
+                    td {border: 1px solid black;} </style></head> <body><table>'''
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'lxml')
-    for a in soup.findAll('a'):
-        a.replaceWithChildren()
 
     for tr in soup.find_all('tr'):
         html += '<tr>'
         try:
-            c = tr['class']
-            color = 'blue' if 'e' in c else 'white' if 'o' in c else 'grey'
+            c = tr['class'][0]
+            color = 'lightblue' if 'e' in c else 'white' if 'o' in c else 'lightgrey'
             underline = True if 'u' in c else False
 
-            for each in tr.find_all('td'):
-                text = each.text.lower().strip()
+            for td in tr.find_all('td'):
+                text = td.text.lower().strip()
+                bold = False
                 if 'par value' in text:
                     text = 'Common Stock and Additional Paid-In Capital'
 
-                html += '<td>' + text.title() + '</td>'
+                html += '<td style="background-color:' + color + '">' + text.title() + '</td>'
         except KeyError:
             headings = True
 
         html += '</tr>'
 
-    print(html + '</table>')
-    return html + '</table>'
+    print(html + '</table></body></html>')
+    return html + '</table></body></html>'
 
 
 def scrape_statements(base, xml):

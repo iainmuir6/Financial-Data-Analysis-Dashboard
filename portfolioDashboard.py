@@ -99,9 +99,17 @@ def run():
 
     else:
         st.write("Portfolio does not exist...")
-        st.write("\nHere are the contents of the portfolioPickles folder:")
-        for file in os.listdir("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles"):
-            st.write("\t" + file)
+        try:
+            st.write("\nHere are the contents of the portfolioPickles folder:")
+            for file in os.listdir("/Users/iainmuir/PycharmProjects/Desktop/stockMarket/portfolioPickles"):
+                st.write("\t" + file)
+        except (Exception, FileNotFoundError) as e:
+            st.error(
+                """
+                Portfolio Pickles are either inaccessible or do not exist
+                
+                """
+            )
 
 
 if __name__ == '__main__':
