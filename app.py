@@ -17,6 +17,9 @@ TO-DO:
     • Display Progress for Loading
     • Link to Earnings for Calendar
     • Combine Financial Statements and Filings loop
+    • Ability to Create Option "Legs"
+        • Payoff Summary
+        • Generalize Options Graphs
 
 streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/app.py
 https://share.streamlit.io/iainmuir6/stockMarket/master/app.py

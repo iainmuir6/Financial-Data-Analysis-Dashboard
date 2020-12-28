@@ -13,80 +13,67 @@ import time
 import re
 
 
-def graph_option(data, price):
-    """
-    :argument data
-    :argument price
-    :return visualization of option profitability – X: stock price, Y: profit
+class Option:
+    def __init__(self, values):
+        self.expiration = str(expiration.date())
+        self.contractName = values[0]
+        self.strike = float(values[2].replace(",", ""))
+        self.initial_price = float(values[3].replace(",", ""))
 
-    """
 
-    last_price = float(data[3])
-    strike = float(data[2])
-    break_even = last_price + strike
-    x = range(int(price * 0.25), int(price * 4))
-    y = []
+class LongCall(Option):
+    def __init__(self, values, current):
+        Option.__init__(self, values)
+        self.initial_cf = self.initial_price * -100
+        self.break_even = self.strike + self.initial_price
+        self.market_value = max(current - self.strike, 0) - self.initial_price
 
-    for dollar in x:
-        if dollar < strike:
-            y.append(last_price * -100)
-        else:
-            y.append((dollar * 100) - (break_even * 100))
 
-    # profit = ['g' if p > 0 else 'r' for p in y]
-    # profit = [(0, 1, 0) if p > 0 else (1, 0, 0) for p in y]
-    # plt.plot(x, y, color=profit)
+class LongPut(Option):
+    def __init__(self, values, current):
+        Option.__init__(self, values)
+        self.initial_cf = self.initial_price * -100
+        self.break_even = self.strike - self.initial_price
+        self.market_value = max(self.strike - current, 0) - self.initial_price
 
-    plt.plot(x, y)
-    plt.axvline(x=price, linestyle='dotted')
-    plt.plot(x, [0 for _ in range(len(x))], color='black', linewidth=2)
-    plt.show()
+
+class ShortCall(Option):
+    def __init__(self, values, current):
+        Option.__init__(self, values)
+        self.initial_cf = self.initial_price * 100
+        self.break_even = self.strike + self.initial_price
+        self.market_value = self.initial_price - max(current - self.strike, 0)
+
+
+class ShortPut(Option):
+    def __init__(self, values, current):
+        Option.__init__(self, values)
+        self.initial_cf = self.initial_price * 100
+        self.break_even = self.strike - self.initial_price
+        self.market_value = self.initial_price - max(self.strike - current, 0)
 
 
 def graph_iron_condor(orders_df, price):
     """
-    :argument data
+    :argument orders_df
     :argument price
     :return visualization of option profitability – X: stock price, Y: profit
 
     """
 
     long_call, short_call, short_put, long_put = orders_df.values
-    cost = 100 * orders_df['lastPrice'].astype(float).sum()
-
-    long_call = float(long_call[2])
-    short_call = float(short_call[2])
-    short_put = float(short_put[2])
-    long_put = float(long_put[2])
-    print(long_call, short_call, short_put, long_put)
 
     scale = 1 + (100 / price)
     x = range(int(price * (1 / scale)), int(price * scale))
     y = []
 
     for dollar in x:
-        revenue = 0
-        if dollar > long_call:
-            revenue += (dollar - long_call) * 100
-        if dollar < long_put:
-            revenue += (long_put - dollar) * 100
-            print("b", revenue)
-        if dollar < short_call:
-            revenue += (short_call - dollar) * 100
-            print("c", revenue)
-        if dollar > short_call:
-            print("d")
-            cost += (dollar - short_call) * 100
-        if dollar > short_put:
-            print("e")
-            revenue += (dollar - short_put) * 100
-        if dollar < short_put:
-            cost += (short_put - dollar) * 100
-            print("f", cost)
-        print("$" + str(dollar), "Rev:", revenue, "Cost:", cost)
+        lc = LongCall(long_call, dollar).market_value
+        sc = ShortCall(short_call, dollar).market_value
+        sp = ShortPut(short_put, dollar).market_value
+        lp = LongPut(long_put, dollar).market_value
 
-        y.append(revenue - cost)
-        break
+        y.append(lc + sc + sp + lp)
 
     plt.plot(x, y)
     plt.axvline(x=price, linestyle='dotted')
@@ -109,6 +96,8 @@ def iron_condor(ticker):
     # graph
     # Max Profit
     # Max Loss
+
+    global expiration
 
     st.markdown("<center> <h3> Iron Condor Options Strategy </h3> </center>", unsafe_allow_html=True)
     st.markdown(
@@ -134,7 +123,7 @@ def iron_condor(ticker):
         expiration = datetime.today().date()
 
         for i, timestamp in enumerate(timestamp_choices):
-            if int(timestamp) > (datetime.today() + timedelta(days=45)).timestamp():
+            if int(timestamp) > (datetime.today() + timedelta(days=35)).timestamp():
                 date = timestamp_choices[i-1]
                 expiration = datetime.fromtimestamp(int(date)) + timedelta(days=1)
                 break
@@ -148,10 +137,17 @@ def iron_condor(ticker):
                                              else 5 - remainder if remainder < 7.5
                                              else 10 - remainder if remainder < 10
                                              else 0)
-        long_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 30.0].values[0]
-        short_call = call_df.loc[call_df['strike'].str.replace(",", "").astype(float) == rounded + 25.0].values[0]
-        short_put = put_df.loc[put_df['strike'].str.replace(",", "").astype(float) == rounded - 35.0].values[0]
-        long_put = put_df.loc[put_df['strike'].str.replace(",", "").astype(float) == rounded - 40.0].values[0]
+        maxi = float(list(call_df['strike'])[-1].replace(",", ""))
+        mini = float(list(put_df['strike'])[0].replace(",", ""))
+        upper = 30 if maxi - rounded > 30 else maxi - rounded
+        lower = 40 if rounded - mini > 40 else rounded - mini
+
+        long_call = call_df.loc[
+            call_df['strike'].str.replace(",", "").astype(float) == rounded + upper].values[0]
+        short_call = call_df.loc[
+            call_df['strike'].str.replace(",", "").astype(float) == rounded + (upper - 5)].values[0]
+        short_put = put_df.loc[put_df['strike'].str.replace(",", "").astype(float) == rounded - (lower - 5)].values[0]
+        long_put = put_df.loc[put_df['strike'].str.replace(",", "").astype(float) == rounded - lower].values[0]
 
         orders = pd.DataFrame(data=[long_call, short_call, short_put, long_put],
                               columns=['contractName', 'lastTradeDate', 'strike', 'lastPrice', 'bid', 'ask', 'change',

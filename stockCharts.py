@@ -3,7 +3,6 @@
 
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
-from urllib.request import urlretrieve
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
 from constants import API_KEY
@@ -28,12 +27,21 @@ def money_string(value: int):
 
 def create_table(url):
 
-    html = '''<html>
-                <head>
-                    <style> 
-                    table,
-                    th,
-                    td {border: 1px solid black;} </style></head> <body><table>'''
+    html = '''
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <style> 
+            table,
+            th,
+            td {
+                border: 1px solid black;
+            } 
+            </style>
+        </head> 
+        <body>
+        <table>
+        '''
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'lxml')
@@ -57,7 +65,6 @@ def create_table(url):
 
         html += '</tr>'
 
-    print(html + '</table></body></html>')
     return html + '</table></body></html>'
 
 
@@ -251,8 +258,12 @@ def run():
 
         if st.checkbox("Show Balance Sheet"):
             st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
-            table = create_table(r['Balance Sheet'])
-            st.markdown(table, unsafe_allow_html=True)
+            url = r['Balance Sheet']
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'lxml')
+            for a in soup.findAll('a'):
+                a.replaceWithChildren()
+            st.write(soup.find('table'), unsafe_allow_html=True)
 
         if st.checkbox("Show Statement of Cash Flows"):
             st.markdown("<h3 style='text-align:center;'> Statement of Cash Flows </h3>", unsafe_allow_html=True)
