@@ -18,7 +18,7 @@ def run(data):
     """
 
     st.markdown("<h3 style='text-align:center;'> Trend Indicator </h3>", unsafe_allow_html=True)
-    st.markdown(
+    st.write(
         """
         Trend indicators analyze whether a market is moving up, down, or sideways over time; this is a lagging measure
         as it looks at how historical data led to the current security price.
@@ -27,15 +27,19 @@ def run(data):
         the 50-day EMA is used to measure the average intermediate price of a security, while the 200-day EMA measures
         the average long term price. 
         
-        SIGNALS
-        * SELL: Shorter-term EMA crossing over the longer-term average signifies a bearish change in trend
-        * BUY: Longer-term EMA crossing over the shorter-term average signifies a bullish change in trend
+        *SIGNALS*
+        * **SELL:** Shorter-term EMA crossing over the longer-term average signifies a bearish change in trend
+        * **BUY:** Longer-term EMA crossing over the shorter-term average signifies a bullish change in trend
         
         Example (Investopedia):
-        ![Image](https://www.investopedia.com/thmb/W53XvEGTcsv5QywLWP4gkvAdWLE=/4888x3964/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_Final_Top_Technical_Indicators_for_Rookie_Traders_Sep_2020-01-65454aefbc9042ef98df266def257fa3.jpg)
         """
     )
-    st.write()  # Spacing
+    st.markdown('<center><img src="https://www.investopedia.com/thmb/W53XvEGTcsv5QywLWP4gkvAdWLE=/4888x3964/filters:no_'
+                'upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_Final_Top_Technical_Indicators_for_'
+                'Rookie_Traders_Sep_2020-01-65454aefbc9042ef98df266def257fa3.jpg" height="250"/></center>',
+                unsafe_allow_html=True)
+    st.write()
+    st.subheader('Stock Data')
 
     token = data['token']
     ticker = data['ticker']
@@ -113,6 +117,7 @@ def run(data):
         ticklabelmode="period"
     )
     fig.layout.yaxis2.showgrid = False
+    fig.layout.title = 'Trend Indicator Graph'
 
     st.plotly_chart(fig)
 
