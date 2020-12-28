@@ -201,7 +201,12 @@ def run():
                                         '&metric=all&token=' + API_KEY).json()
         if bool(basic_financials['series']):
             st.markdown('<u> Basic Financials </u>', unsafe_allow_html=True)
-            st.write("Reported Date: " + str(list(basic_financials['series']['annual'].values())[0][0]['period']))
+
+            date = list(basic_financials['series']['annual'].values())[0][0]['period']
+            if datetime.today() - datetime.strptime(date, '%Y-%m-%d') < timedelta(days=200):
+                st.write("Reported Date: " + date)
+            else:
+                st.warning("Reported Date: " + date)
 
             df1 = pd.DataFrame(
                 {
@@ -256,6 +261,15 @@ def run():
 
         r, o = get_reports(ticker)
 
+        if st.checkbox("Show Income Statement"):
+            st.markdown("<h3 style='text-align:center;'> Income Statement </h3>", unsafe_allow_html=True)
+            url = r['Income Statement']
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'lxml')
+            for a in soup.findAll('a'):
+                a.replaceWithChildren()
+            st.write(soup.find('table'), unsafe_allow_html=True)
+
         if st.checkbox("Show Balance Sheet"):
             st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
             url = r['Balance Sheet']
@@ -274,9 +288,18 @@ def run():
                 a.replaceWithChildren()
             st.write(soup.find('table'), unsafe_allow_html=True)
 
-        if st.checkbox("Show Income Statement"):
-            st.markdown("<h3 style='text-align:center;'> Income Statement </h3>", unsafe_allow_html=True)
-            url = r['Income Statement']
+        if st.checkbox("Show Statement of Shareholder's Equity"):
+            st.markdown("<h3 style='text-align:center;'> Statement of Shareholder's Equity </h3>", unsafe_allow_html=True)
+            url = r["Statement of Shareholder's Equity"]
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'lxml')
+            for a in soup.findAll('a'):
+                a.replaceWithChildren()
+            st.write(soup.find('table'), unsafe_allow_html=True)
+
+        if st.checkbox("Show Comprehensive Income Statement"):
+            st.markdown("<h3 style='text-align:center;'> Comprehensive Income Statement </h3>", unsafe_allow_html=True)
+            url = r['Comprehensive Income Statement']
             page = requests.get(url)
             soup = BeautifulSoup(page.content, 'lxml')
             for a in soup.findAll('a'):

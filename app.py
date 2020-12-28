@@ -16,7 +16,6 @@ TO-DO:
     • Documentation
     • Display Progress for Loading
     • Link to Earnings for Calendar
-    • Combine Financial Statements and Filings loop
     • Ability to Create Option "Legs"
         • Payoff Summary
         • Generalize Options Graphs

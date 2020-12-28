@@ -18,6 +18,23 @@ def run(data):
     """
 
     st.markdown("<h3 style='text-align:center;'> Trend Indicator </h3>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        Trend indicators analyze whether a market is moving up, down, or sideways over time; this is a lagging measure
+        as it looks at how historical data led to the current security price.
+        
+        Specifically, this indicator looks at the 50- and 200-day Exponential Moving Average of a security; in general,
+        the 50-day EMA is used to measure the average intermediate price of a security, while the 200-day EMA measures
+        the average long term price. 
+        
+        SIGNALS
+        * SELL: Shorter-term EMA crossing over the longer-term average signifies a bearish change in trend
+        * BUY: Longer-term EMA crossing over the shorter-term average signifies a bullish change in trend
+        
+        Example (Investopedia):
+        ![Image](https://www.investopedia.com/thmb/W53XvEGTcsv5QywLWP4gkvAdWLE=/4888x3964/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_Final_Top_Technical_Indicators_for_Rookie_Traders_Sep_2020-01-65454aefbc9042ef98df266def257fa3.jpg)
+        """
+    )
     st.write()  # Spacing
 
     token = data['token']
