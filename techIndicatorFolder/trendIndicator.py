@@ -76,7 +76,7 @@ def run(data):
             x=candles.index[50:],
             y=fifty['ema'][50:],
             mode='lines',
-            line={'color': 'rgb(0,0,0,0.5)'},
+            line={'color': 'rgb(203,213,232)'},
             name='50-Day EMA'
         ),
         secondary_y=True
@@ -86,7 +86,7 @@ def run(data):
             x=candles.index[200:],
             y=two_hundo['ema'][200:],
             mode='lines',
-            line={'color': 'rgb(0,0,0,0.5)'},
+            line={'color': 'rgb(253,205,172)'},
             name='200-Day EMA'
         ),
         secondary_y=True

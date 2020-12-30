@@ -32,11 +32,9 @@ def create_table(url):
     <html>
         <head>
             <style> 
-            table,
-            th,
-            td {
+            table, th, td {
                 border: 1px solid black;
-            } 
+            }
             </style>
         </head> 
         <body>
@@ -45,23 +43,35 @@ def create_table(url):
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'lxml')
-
     for tr in soup.find_all('tr'):
         html += '<tr>'
         try:
             c = tr['class'][0]
             color = 'lightblue' if 'e' in c else 'white' if 'o' in c else 'lightgrey'
             underline = True if 'u' in c else False
-
             for td in tr.find_all('td'):
                 text = td.text.lower().strip()
-                bold = False
-                if 'par value' in text:
-                    text = 'Common Stock and Additional Paid-In Capital'
+                try:
+                    strong = td.a.strong
+                    bold = True if strong is not None else False
+                except (TypeError, AttributeError, KeyError):
+                    bold = False
 
-                html += '<td style="background-color:' + color + '">' + text.title() + '</td>'
+                html += '<td style="background-color:' + color + '">' + ("<b>" if bold else "") + text.title() + \
+                        ("</b>" if bold else "") + '</td>'
         except KeyError:
-            headings = True
+            for th in tr.find_all('th'):
+                try:
+                    colspan = str(th['colspan'])
+                except KeyError:
+                    colspan = "1"
+                try:
+                    rowspan = str(th['rowspan'])
+                except KeyError:
+                    rowspan = "1"
+
+                html += '<th style="background-color:CornflowerBlue;text-align:center" colspan="' + colspan +\
+                        '" rowspan="' + rowspan + '"><b>' + th.text.title() + '</b></th>'
 
         html += '</tr>'
 
@@ -210,8 +220,8 @@ def run():
 
             df1 = pd.DataFrame(
                 {
-                    'Metric': [k for k in basic_financials['series']['annual'].keys()],
-                    'Value': [round(v[0]['v'], 4) for v in basic_financials['series']['annual'].values()]
+                    'Metric': [k for k, v in basic_financials['series']['annual'].items() if len(v) != 0],
+                    'Value': [round(v[0]['v'], 4) for v in basic_financials['series']['annual'].values() if len(v) != 0]
                 }
             )
             df2 = pd.DataFrame(
@@ -261,50 +271,20 @@ def run():
 
         r, o = get_reports(ticker)
 
-        if st.checkbox("Show Income Statement"):
-            st.markdown("<h3 style='text-align:center;'> Income Statement </h3>", unsafe_allow_html=True)
-            url = r['Income Statement']
-            page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'lxml')
-            for a in soup.findAll('a'):
-                a.replaceWithChildren()
-            st.write(soup.find('table'), unsafe_allow_html=True)
+        statement = st.radio("",
+                             ["Income Statement", "Balance Sheet", "Statement of Cash Flows",
+                              "Statement of Shareholder's Equity", "Comprehensive Income Statement"])
 
-        if st.checkbox("Show Balance Sheet"):
-            st.markdown("<h3 style='text-align:center;'> Balance Sheet </h3>", unsafe_allow_html=True)
-            url = r['Balance Sheet']
-            page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'lxml')
-            for a in soup.findAll('a'):
-                a.replaceWithChildren()
-            st.write(soup.find('table'), unsafe_allow_html=True)
-
-        if st.checkbox("Show Statement of Cash Flows"):
-            st.markdown("<h3 style='text-align:center;'> Statement of Cash Flows </h3>", unsafe_allow_html=True)
-            url = r['Statement of Cash Flows']
-            page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'lxml')
-            for a in soup.findAll('a'):
-                a.replaceWithChildren()
-            st.write(soup.find('table'), unsafe_allow_html=True)
-
-        if st.checkbox("Show Statement of Shareholder's Equity"):
-            st.markdown("<h3 style='text-align:center;'> Statement of Shareholder's Equity </h3>", unsafe_allow_html=True)
-            url = r["Statement of Shareholder's Equity"]
-            page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'lxml')
-            for a in soup.findAll('a'):
-                a.replaceWithChildren()
-            st.write(soup.find('table'), unsafe_allow_html=True)
-
-        if st.checkbox("Show Comprehensive Income Statement"):
-            st.markdown("<h3 style='text-align:center;'> Comprehensive Income Statement </h3>", unsafe_allow_html=True)
-            url = r['Comprehensive Income Statement']
-            page = requests.get(url)
-            soup = BeautifulSoup(page.content, 'lxml')
-            for a in soup.findAll('a'):
-                a.replaceWithChildren()
-            st.write(soup.find('table'), unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center;'> " + statement + " </h3>", unsafe_allow_html=True)
+        url = r[statement]
+        html = create_table(url)
+        st.write(html, unsafe_allow_html=True)
+        # page = requests.get(url)
+        # soup = BeautifulSoup(page.content, 'lxml')
+        # for a in soup.findAll('a'):
+        #     a.replaceWithChildren()
+        # st.write(soup.find('table'), unsafe_allow_html=True)
+        st.write("Link: " + url)
 
         other_report = st.selectbox("Other Filed Reports:", list(o.keys()))
         st.write("Link: " + o[other_report])

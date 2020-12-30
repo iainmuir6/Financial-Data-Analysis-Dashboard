@@ -1,6 +1,7 @@
 # Iain Muir
 # iam9ez
 
+import plotly.express as px
 import matplotlib.pyplot as plt
 from datetime import datetime
 from constants import API_KEY
@@ -59,14 +60,31 @@ def run(data):
                              '&to=' + str(int(end_date.timestamp())) +
                              '&indicator=bbands&timeperiod=20&token=' + API_KEY).json()
 
-    plt.plot(bands['c'][19:], color='black')
-    plt.plot(bands['lowerband'][19:], color='green')
-    plt.plot(bands['middleband'][19:], color='black', alpha=0.5)
-    plt.plot(bands['upperband'][19:], color='red')
-    plt.title('Bollinger Bands (20, 2)')
-    fig = plt.gcf()
+    df = pd.DataFrame({
+        'Date': pd.to_datetime(bands['t'][19:]),
+        'Close': bands['c'][19:],
+        'Lower Band': bands['lowerband'][19:],
+        'Middle Band': bands['middleband'][19:],
+        'Upper Band': bands['upperband'][19:],
+    })
+    df = df.set_index('Date')
 
-    st.pyplot(fig)
+    fig = px.line(df, color_discrete_map={
+        'Close': 'black',
+        'Lower Band': 'blue',
+        'Middle Band': 'grey',
+        'Upper Band': 'orange',
+    })
+
+    # plt.plot(bands['c'][19:], color='black')
+    # plt.plot(bands['lowerband'][19:], color='green')
+    # plt.plot(bands['middleband'][19:], color='black', alpha=0.5)
+    # plt.plot(bands['upperband'][19:], color='red')
+    # plt.title('Bollinger Bands (20, 2)')
+    # fig = plt.gcf()
+    # st.pyplot(fig)
+
+    st.plotly_chart(fig)
 
 
 if __name__ == '__main__':
@@ -76,24 +94,10 @@ if __name__ == '__main__':
     s = datetime(datetime.today().year - 1, 1, 1)
     e = datetime.today()
 
-    df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + tick + '&resolution=D&' +
-                                   'from=' + str(int(s.timestamp())) +
-                                   '&to=' + str(int(e.timestamp())) +
-                                   '&token=' + API_KEY).json()).drop(axis=1, labels='s')
-    df = pd.DataFrame({
-        'Date': pd.to_datetime(df['t']),
-        'Open': df['o'],
-        'High': df['h'],
-        'Low': df['l'],
-        'Close': df['c'],
-        'Volume': df['v'],
-    })
-
     d = {'token': API_KEY,
          'ticker': tick,
          'startDate': s,
-         'endDate': e,
-         'candles': df.set_index('Date')}
+         'endDate': e}
 
     run(d)
 

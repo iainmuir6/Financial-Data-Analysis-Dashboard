@@ -3,7 +3,7 @@ Iain Muir, iam9ez
 
 PROJECT DESCRIPTION
 
-TO-DO:
+TODO:
     • Reformat Market News
     • Reformat Statement Tables
     • Order Files with Functions
