@@ -26,6 +26,12 @@ def money_string(value: int):
 
 
 def create_table(url):
+    """
+    :argument
+    :return
+    """
+
+    # TODO Style/Reformat Statement Tables
 
     html = '''
     <!DOCTYPE html>
@@ -82,15 +88,6 @@ def scrape_statements(base, xml):
     content = requests.get(xml).content
     soup = BeautifulSoup(content, 'lxml')
     reports = soup.find('myreports').find_all('report')
-
-    # master_reports = {
-    #     'Income Statement': base + reports[1].htmlfilename.text,
-    #     'Comprehensive Income': base + reports[2].htmlfilename.text,
-    #     'Balance Sheet': base + reports[3].htmlfilename.text,
-    #     "Statement of Shareholder's Equity": base + reports[5].htmlfilename.text,
-    #     'Statement of Cash Flows': base + reports[6].htmlfilename.text
-    # }
-
     master_reports = {}
     other = {}
 
@@ -131,7 +128,7 @@ def run():
     """
 
     st.markdown("<h1 style='text-align:center;'> Stock Information </h1>", unsafe_allow_html=True)
-    st.write()  # Spacing
+    st.write()
 
     ticker = st.text_input("Enter Ticker: ")
 

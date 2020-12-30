@@ -12,6 +12,9 @@ import pandas as pd
 import requests
 import time
 
+# TODO Reformat Market and Company News
+# TODO Combine News Compiler
+
 date = datetime.today().date()
 
 
@@ -277,6 +280,9 @@ def earnings_calendar():
             ...]
         }
     """
+
+    # TODO Link to Earnings Report for Calendar
+
     earnings = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
                             str(date - timedelta(days=7)) + '&' +
                             str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
@@ -303,6 +309,13 @@ def earnings_calendar():
 
 
 def covid19():
+    """:argument
+
+    """
+
+    # TODO Enhance COVID Data Display
+    #         • State data
+
     states = requests.get('https://finnhub.io/api/v1/covid19/us?token=' + API_KEY).json()
     data = [[s['state'], STATE_CODES[s['state']], s['case'], s['death']]
             for s in states if s['state'] in STATE_CODES.keys()]

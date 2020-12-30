@@ -206,6 +206,11 @@ def run():
     """
     global timestamp_choices
 
+    # TODO Finish Iron Condor
+    # TODO Ability to Create Option "Legs"
+    #         • Payoff Summary
+    #         • Generalize Options Graphs
+
     st.markdown("<h1 style='text-align:center;'> Option Chains </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
 

@@ -105,6 +105,8 @@ def run():
     """
     global ticker
 
+    # TODO Remaining Technical Indicators (Descriptions of each)
+
     st.markdown("<h1 style='text-align:center;'> Technical Indicators </h1>", unsafe_allow_html=True)
     st.write()
 
