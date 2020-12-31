@@ -44,6 +44,7 @@ def create_table(url):
             </style>
         </head> 
         <body>
+        <link rel="stylesheet" href="https://mleibman.github.io/SlickGrid/slick.grid.css" type="text/css"/>
         <table>
         '''
 
