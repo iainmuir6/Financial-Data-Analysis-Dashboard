@@ -127,7 +127,6 @@ def market_news3():
         if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
             st.markdown("<p><img src='" + news['image'] + "' height='75' align='left'/>" + news['headline'] + "</p>",
                         unsafe_allow_html=True)
-            # st.markdown(news['headline'] + " (<a href='" + news['url'] + "'>" + news['source'] + "</a>)")
 
 
 def company_news(ticker):

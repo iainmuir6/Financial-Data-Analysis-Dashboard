@@ -106,6 +106,7 @@ def run():
     global ticker
 
     # TODO Remaining Technical Indicators (Descriptions of each)
+    # TODO Automate Tech Indicators for Dow30 -- cache
 
     st.markdown("<h1 style='text-align:center;'> Technical Indicators </h1>", unsafe_allow_html=True)
     st.write()

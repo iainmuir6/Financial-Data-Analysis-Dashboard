@@ -1,5 +1,5 @@
 requests==2.22.0
-streamlit==0.72.0
+streamlit==0.73.1
 pandas==1.0.3
 plotly==4.13.0
 matplotlib==3.3.0

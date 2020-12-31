@@ -2,8 +2,8 @@
 # iam9ez
 
 from plotly.subplots import make_subplots
-from datetime import datetime
 import plotly.graph_objects as go
+from datetime import datetime
 import streamlit as st
 import pandas as pd
 import requests

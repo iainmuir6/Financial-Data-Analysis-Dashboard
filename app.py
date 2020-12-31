@@ -9,7 +9,7 @@ TODO:
         • Custom Error Message on Streamlit
     • Documentation
     • Display Progress for Loading
-
+    • Caching
 
 streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/app.py
 https://share.streamlit.io/iainmuir6/stockMarket/master/app.py

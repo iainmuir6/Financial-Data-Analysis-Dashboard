@@ -5,6 +5,7 @@ import streamlit as st
 import time
 
 
+@st.cache
 def run():
     """
 

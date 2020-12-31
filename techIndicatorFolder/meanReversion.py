@@ -76,14 +76,6 @@ def run(data):
         'Upper Band': 'orange',
     })
 
-    # plt.plot(bands['c'][19:], color='black')
-    # plt.plot(bands['lowerband'][19:], color='green')
-    # plt.plot(bands['middleband'][19:], color='black', alpha=0.5)
-    # plt.plot(bands['upperband'][19:], color='red')
-    # plt.title('Bollinger Bands (20, 2)')
-    # fig = plt.gcf()
-    # st.pyplot(fig)
-
     st.plotly_chart(fig)
 
 
