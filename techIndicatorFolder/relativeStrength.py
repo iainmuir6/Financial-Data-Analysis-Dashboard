@@ -45,7 +45,7 @@ def run(data):
                 'no_upscale():max_bytes(150000):strip_icc():format(webp)/dotdash_Final_Top_Technical_Indicators_for_'
                 'Rookie_Traders_Sep_2020-02-9c5b800f6f424b778148a2c6717ea60a.jpg" height="250"/></center>',
                 unsafe_allow_html=True)
-    st.write()
+    st.write("-------------------------")
     st.subheader("Relative Strength Index (RSI)")
     st.markdown(
         """
@@ -82,32 +82,7 @@ def run(data):
 
     fig = make_subplots(rows=3, cols=1,
                         shared_xaxes=True,
-                        vertical_spacing=0.02)
-
-    # layout = dict(
-    #     title=ticker,
-    #     xaxis=go.layout.XAxis(title=go.layout.xaxis.Title(text="Time (EST - New York)"),
-    #                           rangeslider=dict(visible=False)),
-    #     yaxis=go.layout.YAxis(title=go.layout.yaxis.Title(text="Price $ - US Dollars")),
-    # )
-    #
-    # fig.add_trace(
-    #     go.Figure(
-    #         data=[
-    #             go.Candlestick(
-    #                 x=candles.index,
-    #                 open=candles['Open'],
-    #                 high=candles['High'],
-    #                 low=candles['Low'],
-    #                 close=candles['Close'],
-    #                 name='Candlestick'
-    #             )
-    #         ],
-    #         layout=layout
-    #     ),
-    #     row=1,
-    #     col=1
-    # )
+                        vertical_spacing=0.05)
 
     fig.add_trace(
         go.Candlestick(
