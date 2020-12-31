@@ -32,19 +32,12 @@ def create_table(url):
     """
 
     # TODO Style/Reformat Statement Tables
+    # TODO Footnotes
 
     html = '''
     <!DOCTYPE html>
     <html>
-        <head>
-            <style> 
-            table, th, td {
-                border: 1px solid black;
-            }
-            </style>
-        </head> 
-        <body>
-        <link rel="stylesheet" href="https://mleibman.github.io/SlickGrid/slick.grid.css" type="text/css"/>
+        <link rel="stylesheet" href="https://github.com/iainmuir6/stockMarket/blob/master/report.css" type="text/css"/>
         <table>
         '''
 
@@ -54,9 +47,10 @@ def create_table(url):
         html += '<tr>'
         try:
             c = tr['class'][0]
-            color = 'lightblue' if 'e' in c else 'white' if 'o' in c else 'lightgrey'
+            color = 'lightblue' if 'e' in c else 'white' if 'o' in c else 'CornflowerBlue' if 'h' in c else 'lightgrey'
             underline = True if 'u' in c else False
             for td in tr.find_all('td'):
+                # print(td.attrs.keys())
                 text = td.text.lower().strip()
                 try:
                     strong = td.a.strong
@@ -64,7 +58,9 @@ def create_table(url):
                 except (TypeError, AttributeError, KeyError):
                     bold = False
 
-                html += '<td style="background-color:' + color + '">' + ("<b>" if bold else "") + text.title() + \
+                html += '<td style="background-color:' + color + ';text-align:' +\
+                        ('right' if 'num' in td['class'] else 'left') + ';' +\
+                        ('border-bottom: 3px;' if underline else '') + '">' + ("<b>" if bold else "") + text.title() + \
                         ("</b>" if bold else "") + '</td>'
         except KeyError:
             for th in tr.find_all('th'):
@@ -77,12 +73,13 @@ def create_table(url):
                 except KeyError:
                     rowspan = "1"
 
-                html += '<th style="background-color:CornflowerBlue;text-align:center" colspan="' + colspan +\
+                print(colspan, rowspan, th.text.title())
+                html += '<th style="background-color:CornflowerBlue;text-align:center" colspan="' + colspan + \
                         '" rowspan="' + rowspan + '"><b>' + th.text.title() + '</b></th>'
 
         html += '</tr>'
 
-    return html + '</table></body></html>'
+    return html + '</table></html>'
 
 
 def scrape_statements(base, xml):
@@ -273,16 +270,18 @@ def run():
                              ["Income Statement", "Balance Sheet", "Statement of Cash Flows",
                               "Statement of Shareholder's Equity", "Comprehensive Income Statement"])
 
-        st.markdown("<h3 style='text-align:center;'> " + statement + " </h3>", unsafe_allow_html=True)
         url = r[statement]
+        st.markdown("<h3 style='text-align:center;color:black'><a href='" + url + "'>" + statement + "</a></h3>",
+                    unsafe_allow_html=True)
         html = create_table(url)
         st.write(html, unsafe_allow_html=True)
+        st.write("----------------------------")
+
         # page = requests.get(url)
         # soup = BeautifulSoup(page.content, 'lxml')
         # for a in soup.findAll('a'):
         #     a.replaceWithChildren()
         # st.write(soup.find('table'), unsafe_allow_html=True)
-        st.write("Link: " + url)
 
         other_report = st.selectbox("Other Filed Reports:", list(o.keys()))
         st.write("Link: " + o[other_report])
