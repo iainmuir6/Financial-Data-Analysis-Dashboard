@@ -34,16 +34,17 @@ def create_table(url):
     # TODO Style/Reformat Statement Tables
     # TODO Footnotes
 
-    html = '''
+    html = """
     <!DOCTYPE html>
     <html>
-        <link rel="stylesheet" href="https://github.com/iainmuir6/stockMarket/blob/master/report.css" type="text/css"/>
         <table>
-        '''
+        """
 
+    # <link rel="stylesheet" href="https://github.com/iainmuir6/stockMarket/blob/master/report.css" type="text/css"/>
+    print('--------------')
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'lxml')
-    for tr in soup.find_all('tr'):
+    for tr in soup.find('table').find_all('tr', recursive=False):
         html += '<tr>'
         try:
             c = tr['class'][0]
@@ -63,6 +64,12 @@ def create_table(url):
                         ('border-bottom: 3px;' if underline else '') + '">' + ("<b>" if bold else "") + text.title() + \
                         ("</b>" if bold else "") + '</td>'
         except KeyError:
+            if len(tr.find_all('th')) == 0:
+                # print(tr)
+                if 'colspan' in list(tr.attrs.keys()):
+                    colspan = str(tr.td['colspan'])
+                    html += '<td colspan="' + colspan + '">' + tr.td.text + '</td>'
+                # continue
             for th in tr.find_all('th'):
                 try:
                     colspan = str(th['colspan'])
@@ -73,9 +80,12 @@ def create_table(url):
                 except KeyError:
                     rowspan = "1"
 
-                print(colspan, rowspan, th.text.title())
-                html += '<th style="background-color:CornflowerBlue;text-align:center" colspan="' + colspan + \
-                        '" rowspan="' + rowspan + '"><b>' + th.text.title() + '</b></th>'
+                text = th.text.strip().title() \
+                    if len(th.find_all('div')) == 1 \
+                    else ' '.join([div.text.strip().title() for div in th.find_all('div')])
+
+                html += '<th style="background-color:CornflowerBlue;text-align:center;" colspan="' + colspan + \
+                        '" rowspan="' + rowspan + '"><b>' + text + '</b></th>'
 
         html += '</tr>'
 
@@ -324,3 +334,20 @@ if __name__ == '__main__':
     start = time.time()
     run()
     print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))
+
+
+"""
+<html>
+    <table>
+    <tr>
+        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
+            <b>Stockholders' Equity Statements - Usd ($) $ In Millions</b></th>
+        <th style="background-color:CornflowerBlue;text-align:center;" colspan="2" rowspan="1">
+            <b>Total</b></th>
+        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
+            <b>Common Stock And Paid-In Capital</b></th>
+        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
+            <b>Retained Earnings</b></th>
+        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
+            <b>
+"""
