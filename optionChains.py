@@ -2,9 +2,9 @@
 # iam9ez
 
 from datetime import datetime, timedelta
+from constants import API_KEY, S_AND_P
 import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
-from constants import API_KEY
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -214,8 +214,10 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Option Chains </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
 
-    ticker = st.text_input("Input Ticker: ")
-    if ticker:
+    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
+
+    if ticker != '--- Select a Company ---':
+        ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
         url = "https://finance.yahoo.com/quote/" + ticker + "/options?p=" + ticker
         page = requests.get(url)
         soup = BeautifulSoup(page.content, 'html.parser')

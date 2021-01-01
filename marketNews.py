@@ -1,8 +1,7 @@
 # Iain Muir
 # iam9ez
 
-from experimentation.research import largestCap
-from constants import API_KEY, STATE_CODES
+from constants import API_KEY, STATE_CODES, S_AND_P, DOW_JONES
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
@@ -285,12 +284,12 @@ def earnings_calendar():
     earnings = requests.get('https://finnhub.io/api/v1/calendar/earnings?from=' +
                             str(date - timedelta(days=7)) + '&' +
                             str(date + timedelta(days=30)) + '&token=' + API_KEY).json()
-    if not any(map(lambda e: e['symbol'] in largestCap, earnings['earningsCalendar'])):
+    if not any(map(lambda e: e['symbol'] in DOW_JONES, earnings['earningsCalendar'])):
         st.write('No Earnings to Report!')
         return
 
     for event in earnings['earningsCalendar']:
-        if event['symbol'] not in largestCap:
+        if event['symbol'] not in DOW_JONES:
             continue
         company = requests.get('https://finnhub.io/api/v1/stock/profile2?symbol=' + event['symbol'] + '&token=' +
                                API_KEY).json()['name']
@@ -420,8 +419,9 @@ def run():
     market_news2()
     st.markdown('------------------------------------------')
     st.subheader("Company News and Analyst Sentiments")
-    tick = st.text_input("Input Ticker:")
-    if tick:
+    tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
+    if tick != '--- Select a Company ---':
+        tick = tick[tick.rfind('-') + 2:] if tick != 'Other' else st.text_input("Input Ticker:")
         company_news(tick)
         st.markdown('------------------------------------------')
         analyst_sentiments(tick)

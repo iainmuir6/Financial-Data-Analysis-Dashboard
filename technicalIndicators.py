@@ -10,9 +10,9 @@ Five Categories of Technical Indicators:
 """
 
 from techIndicatorFolder import trendIndicator, meanReversion, relativeStrength, volume, momentum
+from constants import API_KEY, S_AND_P
 import matplotlib.pyplot as plt
 from datetime import datetime
-from constants import API_KEY
 import mplfinance as fplt
 import streamlit as st
 import pandas as pd
@@ -124,11 +124,10 @@ def run():
     selection = st.sidebar.radio("Go to", list(pages.keys()))
     page = pages[selection]
 
-    ticker = st.text_input("Input Ticker: ")
+    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
 
-    # Inputs
-
-    if ticker:
+    if ticker != '--- Select a Company ---':
+        ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
 

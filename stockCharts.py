@@ -5,7 +5,7 @@ from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
-from constants import API_KEY
+from constants import API_KEY, S_AND_P
 import streamlit as st
 import pandas as pd
 import requests
@@ -34,6 +34,7 @@ def create_table(url):
     # TODO Style/Reformat Statement Tables
     # TODO Footnotes
 
+    footnote = ''
     html = """
     <!DOCTYPE html>
     <html>
@@ -41,7 +42,7 @@ def create_table(url):
         """
 
     # <link rel="stylesheet" href="https://github.com/iainmuir6/stockMarket/blob/master/report.css" type="text/css"/>
-    print('--------------')
+
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'lxml')
     for tr in soup.find('table').find_all('tr', recursive=False):
@@ -65,11 +66,8 @@ def create_table(url):
                         ("</b>" if bold else "") + '</td>'
         except KeyError:
             if len(tr.find_all('th')) == 0:
-                # print(tr)
-                if 'colspan' in list(tr.attrs.keys()):
-                    colspan = str(tr.td['colspan'])
-                    html += '<td colspan="' + colspan + '">' + tr.td.text + '</td>'
-                # continue
+                if 'colspan' in list(tr.td.attrs.keys()):
+                    footnote += tr.td.text + '\n'
             for th in tr.find_all('th'):
                 try:
                     colspan = str(th['colspan'])
@@ -89,7 +87,7 @@ def create_table(url):
 
         html += '</tr>'
 
-    return html + '</table></html>'
+    return html + '</table></html>', footnote
 
 
 def scrape_statements(base, xml):
@@ -137,10 +135,10 @@ def run():
 
     st.markdown("<h1 style='text-align:center;'> Stock Information </h1>", unsafe_allow_html=True)
     st.write()
+    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
 
-    ticker = st.text_input("Enter Ticker: ")
-
-    if ticker:
+    if ticker != '--- Select a Company ---':
+        ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
@@ -283,8 +281,10 @@ def run():
         url = r[statement]
         st.markdown("<h3 style='text-align:center;color:black'><a href='" + url + "'>" + statement + "</a></h3>",
                     unsafe_allow_html=True)
-        html = create_table(url)
+        html, footnote = create_table(url)
         st.write(html, unsafe_allow_html=True)
+        if footnote != '':
+            st.markdown('*' + footnote.strip() + '*')
         st.write("----------------------------")
 
         # page = requests.get(url)
