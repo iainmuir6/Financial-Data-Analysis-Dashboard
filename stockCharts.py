@@ -135,7 +135,7 @@ def run():
 
     st.markdown("<h1 style='text-align:center;'> Stock Information </h1>", unsafe_allow_html=True)
     st.write()
-    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
+    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
 
     if ticker != '--- Select a Company ---':
         ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")

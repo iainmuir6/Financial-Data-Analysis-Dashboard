@@ -419,7 +419,7 @@ def run():
     market_news2()
     st.markdown('------------------------------------------')
     st.subheader("Company News and Analyst Sentiments")
-    tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
+    tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
     if tick != '--- Select a Company ---':
         tick = tick[tick.rfind('-') + 2:] if tick != 'Other' else st.text_input("Input Ticker:")
         company_news(tick)

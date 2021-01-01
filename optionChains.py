@@ -20,6 +20,13 @@ class Option:
         self.strike = float(values[2].replace(",", ""))
         self.initial_price = float(values[3].replace(",", ""))
 
+    @staticmethod
+    def display(*argv):
+        pass
+
+    def iron_condor(self, values, current):
+        self.display(LongCall())
+
 
 class LongCall(Option):
     def __init__(self, values, current):
@@ -177,8 +184,6 @@ def scrape(ticker, date):
     regex = re.compile(r'>([A-Za-z0-9,.+:-]+)')
     current_price = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker +
                                  '&token=' + API_KEY).json()['c']
-    st.markdown("<center> <h3> Current Price (" + ticker + "): " + str(current_price) + "</h3> </center>",
-                unsafe_allow_html=True)
 
     option_chain = calls.find('tbody').find_all('tr')
     call_data = [regex.findall(str(option)) for option in option_chain]
@@ -196,7 +201,7 @@ def scrape(ticker, date):
     put_df['inTheMoney'] = np.where(put_df['strike'].str.replace(",", "").astype(float) > current_price,
                                     True, False)
 
-    return call_df, put_df
+    return call_df, put_df, current_price
 
 
 def run():
@@ -214,7 +219,7 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Option Chains </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
 
-    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=506)
+    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
 
     if ticker != '--- Select a Company ---':
         ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
@@ -223,13 +228,15 @@ def run():
         soup = BeautifulSoup(page.content, 'html.parser')
 
         options = soup.find_all("select", class_='Fz(s) H(25px) Bd Bdc($seperatorColor)')[0].find_all('option')
-        string_choices = [option.text for option in options]
+        string_choices = [option.text for option in options] + ['--- Select Expiration Date ---']
         timestamp_choices = [option['value'] for option in options]
-        selection = st.selectbox("Expiration Date: ", string_choices)
-        date = timestamp_choices[string_choices.index(selection)]
+        selection = st.selectbox("Expiration Date: ", string_choices, index=len(string_choices) - 1)
+        date = timestamp_choices[string_choices.index(selection)] \
+            if selection != '--- Select Expiration Date ---' \
+            else None
 
-        if date:
-            call_df, put_df = scrape(ticker, date)
+        if date is not None:
+            call_df, put_df, current = scrape(ticker, date)
 
             c, p = st.beta_columns(2)
             c.title("Call Options")
@@ -239,8 +246,17 @@ def run():
             p.dataframe(put_df[['strike', 'lastPrice', 'volume', 'inTheMoney']].style.apply(highlight, axis=1))
 
             st.markdown('------------------------------------------')
-        if st.checkbox("Show Iron Condor"):
-            iron_condor(ticker)
+
+            strategy = st.selectbox('Strategy:', ['Custom', 'Iron Condor'], index=0)
+            st.markdown("<h3> Current Underlying Price (" + ticker + "): " + str(current) + "</h3>",
+                        unsafe_allow_html=True)
+            if strategy == 'Custom':
+                st.write(strategy)
+            else:
+                st.write(strategy)
+
+        # if st.checkbox("Show Iron Condor"):
+        #     iron_condor(ticker)
 
 
 if __name__ == '__main__':

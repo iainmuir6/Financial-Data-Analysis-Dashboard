@@ -62,6 +62,8 @@ STATE_CODES = {
 }
 
 S_AND_P = [
+    '--- Select a Company ---',
+    '-- Other --',
     'Agilent Technologies Inc - A',
     'American Airlines Group - AAL',
     'Advance Auto Parts - AAP',
@@ -567,6 +569,4 @@ S_AND_P = [
     'Zebra Technologies - ZBRA',
     'Zions Bancorp - ZION',
     'Zoetis - ZTS',
-    'Other',
-    '--- Select a Company ---'
 ]
