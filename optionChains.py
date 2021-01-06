@@ -204,12 +204,30 @@ def scrape(ticker, date):
     return call_df, put_df, current_price
 
 
+def new_leg():
+    a, b, c, d, e, f, g = st.beta_columns(7)
+    a.write('Leg')
+    a.write(str(i))
+    b.write('Direction')
+    direction = b.text_input('', key='direction')
+    c.write('Type')
+    type_ = c.text_input('', key='type')
+    d.write('Strike')
+    strike = d.text_input('', key='strike')
+    e.write('Intial Price')
+    price = e.text_input('', key='ip')
+    f.write('Value')
+    g.write('P/L')
+
+    return direction, type_, strike, price, g.button("+")
+
+
 def run():
     """
 
     :return
     """
-    global timestamp_choices
+    global timestamp_choices, i
 
     # TODO Finish Iron Condor
     # TODO Ability to Create Option "Legs"
@@ -250,8 +268,22 @@ def run():
             strategy = st.selectbox('Strategy:', ['Custom', 'Iron Condor'], index=0)
             st.markdown("<h3> Current Underlying Price (" + ticker + "): " + str(current) + "</h3>",
                         unsafe_allow_html=True)
+
+            # TODO Figure out Leg Table
+
+            i = 1
             if strategy == 'Custom':
-                st.write(strategy)
+                legs = int(st.text_input('How many legs? '))
+                direction, type_, strike, price, button = new_leg()
+                for leg in range(1, legs+1):
+                    if button:
+                        del button
+                        direction, type_, strike, price, button = new_leg()
+                        i += 1
+                        if direction is None or type_ is None or strike is None or price is None:
+                            time.sleep(1)
+
+
             else:
                 st.write(strategy)
 
