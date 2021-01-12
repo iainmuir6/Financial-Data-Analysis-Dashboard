@@ -3,6 +3,7 @@
 
 import streamlit as st
 import time
+import os
 
 
 def run():
@@ -10,6 +11,7 @@ def run():
 
     :return
     """
+    st.write(os.environ.keys())
     st.markdown("<center> <img src='https://img.shields.io/badge/python-100%25-brightgreen' "
                 "height='20'/> <img src='https://img.shields.io/badge/implementation-streamlit-orange' "
                 "height='20'/> </center>", unsafe_allow_html=True)
