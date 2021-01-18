@@ -18,16 +18,21 @@ date = datetime.today().date()
 
 
 def money_string(value: int):
-    string = ""
     value = str(value)[::-1]
-    if value.find(".") != -1:
-        value = value[value.find(".") + 1:]
-    for i in range(len(value)):
-        if i != 0 and i % 3 == 0:
-            string += "," + value[i]
-        else:
-            string += value[i]
-    return (string + "$")[::-1]
+    v = value[value.find(".") + 1:] if value.find(".") != -1 else value
+    s = (''.join(["," + v[i] if i != 0 and i % 3 == 0 else v[i] for i in range(len(v))]) + "$")[::-1]
+
+    # string = ""
+    # value = str(value)[::-1]
+    # if value.find(".") != -1:
+    #     value = value[value.find(".") + 1:]
+    # for i in range(len(value)):
+    #     if i != 0 and i % 3 == 0:
+    #         string += "," + value[i]
+    #     else:
+    #         string += value[i]
+
+    return s
 
 
 def yahoo_finance(endpoint):

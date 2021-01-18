@@ -3,9 +3,9 @@
 
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
+from constants import API_KEY, S_AND_P
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
-from constants import API_KEY, S_AND_P
 import streamlit as st
 import pandas as pd
 import requests
