@@ -127,7 +127,7 @@ def run():
     ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
 
     if ticker != '--- Select a Company ---':
-        ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
+        ticker = ticker[ticker.rfind('-') + 2:] if ticker != '-- Other --' else st.text_input("Input Ticker:")
         s = datetime(datetime.today().year - 1, 1, 1)
         e = datetime.today()
 

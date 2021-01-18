@@ -240,7 +240,7 @@ def run():
     ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
 
     if ticker != '--- Select a Company ---':
-        ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
+        ticker = ticker[ticker.rfind('-') + 2:] if ticker != '-- Other --' else st.text_input("Input Ticker:")
         url = "https://finance.yahoo.com/quote/" + ticker + "/options?p=" + ticker
         page = requests.get(url)
         soup = BeautifulSoup(page.content, 'html.parser')

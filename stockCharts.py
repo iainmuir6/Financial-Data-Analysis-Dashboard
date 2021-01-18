@@ -138,7 +138,7 @@ def run():
     ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
 
     if ticker != '--- Select a Company ---':
-        ticker = ticker[ticker.rfind('-') + 2:] if ticker != 'Other' else st.text_input("Input Ticker:")
+        ticker = ticker[ticker.rfind('-') + 2:] if ticker != '-- Other --' else st.text_input("Input Ticker:")
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
