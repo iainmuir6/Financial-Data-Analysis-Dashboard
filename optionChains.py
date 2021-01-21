@@ -237,7 +237,7 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Option Chains </h1>", unsafe_allow_html=True)
     st.write()  # Spacing
 
-    ticker = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
+    ticker = st.selectbox("Input Company for Option Chains ('Other' for small caps):", S_AND_P, index=0)
 
     if ticker != '--- Select a Company ---':
         ticker = ticker[ticker.rfind('-') + 2:] if ticker != '-- Other --' else st.text_input("Input Ticker:")
@@ -273,16 +273,17 @@ def run():
 
             i = 1
             if strategy == 'Custom':
-                legs = int(st.text_input('How many legs? '))
-                direction, type_, strike, price, button = new_leg()
-                for leg in range(1, legs+1):
-                    if button:
-                        del button
-                        direction, type_, strike, price, button = new_leg()
-                        i += 1
-                        if direction is None or type_ is None or strike is None or price is None:
-                            time.sleep(1)
-
+                legs = st.text_input('How many legs? ')
+                if legs:
+                    legs = int(legs)
+                    direction, type_, strike, price, button = new_leg()
+                    for leg in range(1, legs+1):
+                        if button:
+                            del button
+                            direction, type_, strike, price, button = new_leg()
+                            i += 1
+                            if direction is None or type_ is None or strike is None or price is None:
+                                time.sleep(1)
 
             else:
                 st.write(strategy)

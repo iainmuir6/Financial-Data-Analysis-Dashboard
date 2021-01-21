@@ -2,7 +2,6 @@
 # iam9ez
 
 import plotly.express as px
-import matplotlib.pyplot as plt
 from datetime import datetime
 from constants import API_KEY
 import streamlit as st

@@ -12,11 +12,7 @@ PORTFOLIO DIVERSIFICATION
     Options         (3 – 12%)
 """
 
-
-from constants import API_KEY
 # import yfinance as yf
-import requests
-import time
 
 # largeCap = list(requests.get(
 #     'https://finnhub.io/api/v1/index/constituents?symbol=^GSPC&token=' + api_key).json()['constituents'])

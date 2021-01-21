@@ -426,10 +426,11 @@ def run():
     st.subheader("Company News and Analyst Sentiments")
     tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
     if tick != '--- Select a Company ---':
-        tick = tick[tick.rfind('-') + 2:] if tick != 'Other' else st.text_input("Input Ticker:")
-        company_news(tick)
-        st.markdown('------------------------------------------')
-        analyst_sentiments(tick)
+        tick = tick[tick.rfind('-') + 2:] if tick != '-- Other --' else st.text_input("Input Ticker:")
+        if tick:
+            company_news(tick)
+            st.markdown('------------------------------------------')
+            analyst_sentiments(tick)
     st.markdown('------------------------------------------')
     st.subheader("Earnings Calendar")
     earnings_calendar()
