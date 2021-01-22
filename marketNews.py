@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import plotly.express as px
 import streamlit as st
 import pandas as pd
+import compiler
 import requests
 import time
 
@@ -52,6 +53,16 @@ def yahoo_finance(endpoint):
     color = 'green' if "+" in change else 'red'
 
     return last, change, pct, color
+
+
+def news(s):
+    return {
+        'Home': compiler.overall(),
+        'Wash Post': compiler.wp(),
+        'ESPN': compiler.espn(),
+        "Barron's": compiler.barron(),
+        'Economist': compiler.economist()
+    }.get(s, 'Failed...')
 
 
 def market_news():
@@ -420,26 +431,37 @@ def run():
     st.markdown(other + "</center>", unsafe_allow_html=True)
 
     st.markdown('------------------------------------------')
-    st.subheader("Overall Market News")
-    market_news2()
+    cols = st.beta_columns(5)
+    sources = ['Home', 'Wash Post', 'ESPN', "Barron's", 'Economist']
+    for col, source in zip(cols, sources):
+        expanded = True if source == 'Home' else False
+        with col.beta_expander(source, expanded=expanded):
+            news(source)
+
+    # st.subheader("Overall Market News")
+    # market_news2()
     st.markdown('------------------------------------------')
-    st.subheader("Company News and Analyst Sentiments")
-    tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
-    if tick != '--- Select a Company ---':
-        tick = tick[tick.rfind('-') + 2:] if tick != '-- Other --' else st.text_input("Input Ticker:")
-        if tick:
-            company_news(tick)
-            st.markdown('------------------------------------------')
-            analyst_sentiments(tick)
-    st.markdown('------------------------------------------')
-    st.subheader("Earnings Calendar")
-    earnings_calendar()
-    st.markdown('------------------------------------------')
-    st.subheader("IPO Calendar")
-    ipo_calendar()
-    st.markdown('------------------------------------------')
-    st.subheader("Coronarvirus Data")
-    covid19()
+    with st.beta_expander('Company News', expanded=False):
+        st.subheader("Company News and Analyst Sentiments")
+        tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
+        st.markdown('------------------------------------------')
+        if tick != '--- Select a Company ---':
+            tick = tick[tick.rfind('-') + 2:] if tick != '-- Other --' else st.text_input("Input Ticker:")
+            if tick:
+                company_news(tick)
+                st.markdown('------------------------------------------')
+                analyst_sentiments(tick)
+    with st.beta_expander('Earnings Calendar', expanded=False):
+        st.subheader("Earnings Calendar")
+        earnings_calendar()
+        st.markdown('------------------------------------------')
+    with st.beta_expander('IPO Calendar', expanded=False):
+        st.subheader("IPO Calendar")
+        ipo_calendar()
+        st.markdown('------------------------------------------')
+    with st.beta_expander('Coronavirus Data', expanded=False):
+        st.subheader("Coronarvirus Data")
+        covid19()
 
 
 if __name__ == '__main__':

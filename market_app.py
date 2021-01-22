@@ -11,8 +11,8 @@ TODO:
     • Display Progress for Loading
     • Caching
 
-streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/app.py
-https://share.streamlit.io/iainmuir6/stockMarket/master/app.py
+streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/fantasy_app.py
+https://share.streamlit.io/iainmuir6/stockMarket/master/fantasy_app.py
 """
 
 import streamlit as st
@@ -38,7 +38,7 @@ def launch():
         "Technical Indicators": technicalIndicators
     }
 
-    st.sidebar.title("Navigation")
+    st.sidebar.title("Market Navigation")
     selection = st.sidebar.radio("Go to", list(pages.keys()))
     page = pages[selection]
     page.run()
