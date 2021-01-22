@@ -9,7 +9,7 @@ Five Categories of Technical Indicators:
       Momentum
 """
 
-from techIndicatorFolder import trendIndicator, meanReversion, relativeStrength, volume, momentum
+from stockMarket import trendIndicator, volume, momentum, relativeStrength, meanReversion
 from constants import API_KEY, S_AND_P
 import matplotlib.pyplot as plt
 from datetime import datetime

@@ -17,11 +17,19 @@ https://share.streamlit.io/iainmuir6/stockMarket/master/app.py
 
 import streamlit as st
 
-from stockMarket import home, marketNews, stockCharts, optionChains, portfolioDashboard, technicalIndicators
+try:
+    from stockMarket import home, marketNews, stockCharts, optionChains, portfolioDashboard, technicalIndicators
+except ModuleNotFoundError:
+    import home
+    import marketNews
+    import stockCharts
+    import optionChains
+    import portfolioDashboard
+    import technicalIndicators
 
 
 def launch():
-    PAGES = {
+    pages = {
         "Home": home,
         "Market News": marketNews,
         "Portfolio": portfolioDashboard,
@@ -31,6 +39,10 @@ def launch():
     }
 
     st.sidebar.title("Navigation")
-    selection = st.sidebar.radio("Go to", list(PAGES.keys()))
-    page = PAGES[selection]
+    selection = st.sidebar.radio("Go to", list(pages.keys()))
+    page = pages[selection]
     page.run()
+
+
+if __name__ == '__main__':
+    launch()
