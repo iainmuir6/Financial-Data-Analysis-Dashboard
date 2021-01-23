@@ -18,9 +18,9 @@ https://share.streamlit.io/iainmuir6/stockMarket/master/fantasy_app.py
 import streamlit as st
 
 try:
-    from stockMarket import home, marketNews, stockCharts, optionChains, portfolioDashboard, technicalIndicators
+    from stockMarket import marketNews, stockCharts, optionChains, portfolioDashboard, technicalIndicators, market_home
 except ModuleNotFoundError:
-    import home
+    import market_home
     import marketNews
     import stockCharts
     import optionChains
@@ -30,7 +30,7 @@ except ModuleNotFoundError:
 
 def launch():
     pages = {
-        "Home": home,
+        "Home": market_home,
         "Market News": marketNews,
         "Portfolio": portfolioDashboard,
         "Stock Charts": stockCharts,
