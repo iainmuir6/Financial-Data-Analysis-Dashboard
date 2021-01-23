@@ -11,6 +11,8 @@ import time
 
 
 def overall():
+    print('home')
+    st.write('***')
     m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + API_KEY).json()
     left, right = st.beta_columns(2)
     for i, news in enumerate(m_news):
@@ -23,18 +25,22 @@ def overall():
 
 
 def wp():
+    print('wp')
     st.write(__name__)
 
 
 def espn():
+    print('espn')
     st.write(__name__)
 
 
 def barron():
+    print('barron')
     st.write(__name__)
 
 
 def economist():
+    print('economist')
     st.write(__name__)
 
 

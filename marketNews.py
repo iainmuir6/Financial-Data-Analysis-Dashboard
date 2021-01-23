@@ -8,9 +8,13 @@ from bs4 import BeautifulSoup
 import plotly.express as px
 import streamlit as st
 import pandas as pd
-import compiler
 import requests
 import time
+
+try:
+    from stockMarket import compiler
+except ModuleNotFoundError:
+    import compiler
 
 # TODO Reformat Market and Company News
 # TODO Combine News Compiler
@@ -22,17 +26,6 @@ def money_string(value: int):
     value = str(value)[::-1]
     v = value[value.find(".") + 1:] if value.find(".") != -1 else value
     s = (''.join(["," + v[i] if i != 0 and i % 3 == 0 else v[i] for i in range(len(v))]) + "$")[::-1]
-
-    # string = ""
-    # value = str(value)[::-1]
-    # if value.find(".") != -1:
-    #     value = value[value.find(".") + 1:]
-    # for i in range(len(value)):
-    #     if i != 0 and i % 3 == 0:
-    #         string += "," + value[i]
-    #     else:
-    #         string += value[i]
-
     return s
 
 
@@ -430,16 +423,37 @@ def run():
              "<b><span style='font-size:7pt'> Loonie " + "</span></b><span style='font-size:8pt'>" + cad + "</span>"
     st.markdown(other + "</center>", unsafe_allow_html=True)
 
-    st.markdown('------------------------------------------')
-    cols = st.beta_columns(5)
-    sources = ['Home', 'Wash Post', 'ESPN', "Barron's", 'Economist']
-    for col, source in zip(cols, sources):
-        expanded = True if source == 'Home' else False
-        with col.beta_expander(source, expanded=expanded):
-            news(source)
+#     st.markdown(
+#         """
+#         <style>
+# .button {
+#   border: none;
+#   color: white;
+#   padding: 15px 32px;
+#   text-align: center;
+#   text-decoration: none;
+#   display: inline-block;
+#   font-size: 16px;
+#   margin: 4px 2px;
+#   cursor: pointer;
+# }
+# </style>
+#         """
+#     )
 
-    # st.subheader("Overall Market News")
-    # market_news2()
+    st.markdown('------------------------------------------')
+
+    # col1, col2, col3, col4, col5 = st.beta_columns(5)
+    # home = col1.button('Home')
+    # wp = col2.button('Washington Post')
+    # espn = col3.button('ESPN')
+    # b = col4.button("Barron's")
+    # econ = col5.button('Economist')
+    #
+    # container = st.beta_container()
+
+    st.subheader("Overall Market News")
+    market_news2()
     st.markdown('------------------------------------------')
     with st.beta_expander('Company News', expanded=False):
         st.subheader("Company News and Analyst Sentiments")
