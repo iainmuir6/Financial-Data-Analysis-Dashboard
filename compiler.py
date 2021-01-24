@@ -1,13 +1,13 @@
 # Iain Muir
 # iam9ez
 
-from selenium import webdriver
-from bs4 import BeautifulSoup
+# from selenium import webdriver
+# from bs4 import BeautifulSoup
 from constants import API_KEY
 import streamlit as st
 from datetime import datetime
 import requests
-import time
+# import time
 
 
 def overall():
