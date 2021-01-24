@@ -11,8 +11,8 @@ TODO:
     • Display Progress for Loading
     • Caching
 
-streamlit run /Users/iainmuir/PycharmProjects/Desktop/stockMarket/fantasy_app.py
-https://share.streamlit.io/iainmuir6/stockMarket/master/fantasy_app.py
+streamlit run /Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/market_app.py
+/Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/market_app.py
 """
 
 import streamlit as st
