@@ -1,11 +1,11 @@
 # Iain Muir
 # iam9ez
 
-# from selenium import webdriver
-# from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 from constants import API_KEY
-import streamlit as st
 from datetime import datetime
+import streamlit as st
+import pandas as pd
 import requests
 # import time
 
@@ -25,23 +25,111 @@ def overall():
 
 
 def wp():
-    print('wp')
-    st.write(__name__)
+    # start = time.time()
+
+    url = "https://www.washingtonpost.com/"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+    classes = [
+        'no-wrap-text left art-size--lg',
+        'no-wrap-text left art-size--fullWidth',
+        'wrap-text left art-size--sm',
+        'wrap-text left art-size--md'
+    ]
+
+    data = []
+    stories = []
+    for class_ in classes:
+        stories += soup.find_all('div', class_=class_)
+
+    for story in stories:
+        try:
+            headline = story.find('div', class_='relative gray-darkest pb-xs').text
+            link = story.find_all('a')[0]['href']
+            section = link.split('/')[3]
+            description = story.find('div', class_='bb pb-xs font--subhead 1h-fronts-sm font-light gray-dark ')
+            description = description.text if description is not None else None
+            image = story.find('img')
+            image = image['src'] if image is not None else None
+        except (AttributeError, Exception):
+            continue
+
+        data.append(['Washington Post', section, headline, description, image, link])
+
+    return data
 
 
 def espn():
-    print('espn')
-    st.write(__name__)
+    # start = time.time()
+
+    url = 'https://www.espn.com/'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    data = []
+
+    stack = soup.find_all('section', class_='headlineStack__listContainer')[1]
+    for story in stack.find_all('li'):
+        headline = story.text
+        link = url + story.a['href']
+
+        data.append(['ESPN', None, headline, None, None, link])
+
+    return data
 
 
 def barron():
-    print('barron')
-    st.write(__name__)
+    # start = time.time()
+
+    url = 'https://www.barrons.com/'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    articles = soup.find_all('article', class_='BarronsTheme--story--13Re0lAk')
+    print(len(articles))
+
+    for article in articles:
+        print(article)
 
 
 def economist():
-    print('economist')
-    st.write(__name__)
+    # start = time.time()
+
+    url = 'https://www.economist.com/'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    data = []
+    articles = [item for item in soup.find_all('div') if 'data-test-id' in item.attrs]
+
+    for article in articles:
+        info = article.div
+        try:
+            section = info.a.text
+        except AttributeError:
+            continue
+        headline = info.h3.text
+        link = url + info.h3.a['href']
+        description = info.p.text if info.p is not None else None
+        image = article.find('div', class_='teaser__image')
+        image = image.img['src'] if image is not None else article.find('div', class_='collection-item__image') \
+            if article.find('div', class_='collection-item__image') is not None else None
+
+        data.append(['Economist', section, headline, description, image, link])
+
+    return data
+
+
+if __name__ == '__main__':
+    d = []
+    d += wp()
+    d += espn()
+    # d += barron()
+    d += economist()
+
+    df = pd.DataFrame(d, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
+
+    print(df)
 
 
 # urls = ["https://www.wsj.com/", "https://www.espn.com/", "https://www.washingtonpost.com/regional/",
