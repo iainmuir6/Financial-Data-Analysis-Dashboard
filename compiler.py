@@ -7,7 +7,7 @@ from datetime import datetime
 import streamlit as st
 import pandas as pd
 import requests
-# import time
+import time
 
 
 def overall():
@@ -25,10 +25,15 @@ def overall():
 
 
 def wp():
-    # start = time.time()
+    """
+    6-8 second request time...
+    """
+
+    start = time.time()
 
     url = "https://www.washingtonpost.com/"
     page = requests.get(url)
+    print('page load in %s seconds' % (time.time() - start))
     soup = BeautifulSoup(page.content, "html.parser")
     classes = [
         'no-wrap-text left art-size--lg',
@@ -41,6 +46,7 @@ def wp():
     stories = []
     for class_ in classes:
         stories += soup.find_all('div', class_=class_)
+    print('loop in %s seconds' % (time.time() - start))
 
     for story in stories:
         try:
@@ -56,44 +62,52 @@ def wp():
 
         data.append(['Washington Post', section, headline, description, image, link])
 
+    print(' --- Finished Washington Post in %s seconds ---' % (time.time() - start))
     return data
 
 
 def espn():
-    # start = time.time()
+    start = time.time()
 
     url = 'https://www.espn.com/'
     page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")
 
     data = []
+    stacks = soup.find_all('div', class_='headlineStack')
+    for stack in stacks:
+        try:
+            headler = stack.header.text
+            stories = stack.section.ul.find_all('li')
+            for story in stories:
+                headline = story.text
+                link = url + story.a['href'][1:]
+                data.append(['ESPN', None, headline, None, None, link])
 
-    stack = soup.find_all('section', class_='headlineStack__listContainer')[1]
-    for story in stack.find_all('li'):
-        headline = story.text
-        link = url + story.a['href']
+        except AttributeError:
+            continue
 
-        data.append(['ESPN', None, headline, None, None, link])
-
+    print(' --- Finished ESPN in %s seconds ---' % (time.time() - start))
     return data
 
 
 def barron():
-    # start = time.time()
+    start = time.time()
 
-    url = 'https://www.barrons.com/'
+    url = 'https://www.barrons.com/?mod=errorpage'
     page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")
 
     articles = soup.find_all('article', class_='BarronsTheme--story--13Re0lAk')
-    print(len(articles))
 
     for article in articles:
         print(article)
 
+    print(' --- Finished Barrons in %s seconds ---' % (time.time() - start))
+
 
 def economist():
-    # start = time.time()
+    start = time.time()
 
     url = 'https://www.economist.com/'
     page = requests.get(url)
@@ -117,20 +131,62 @@ def economist():
 
         data.append(['Economist', section, headline, description, image, link])
 
+    print(' --- Finished Economist in %s seconds ---' % (time.time() - start))
+    return data
+
+
+def ft():
+    start = time.time()
+
+    url = 'https://www.ft.com/'
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+    articles = soup.find_all('div', class_='o-teaser__content')
+    images = soup.find_all('div', class_='o-teaser__image-container js-teaser-image-container')
+
+    img = []
+    for image in images:
+        id_ = image.a['href'][9:]
+        try:
+            link = image.a.div.img['src']
+        except KeyError:
+            link = image.a.div.img['data-src']
+        img.append([link, id_])
+    image_df = pd.DataFrame(img, columns=['link', 'id'])
+
+    data = []
+    for article in articles:
+        section = article.div.a.text
+        info = article.find('div', class_='o-teaser__heading')
+        headline = info.a.text
+        extension = info.a['href'][1:]
+        link = url + extension
+        story_id = extension[extension.rfind('/') + 1:]
+        description = article.p.text if article.p is not None else None
+
+        try:
+            image = list(image_df.query('id == "' + story_id + '"')['link'])[0]
+        except IndexError:
+            image = None
+
+        data.append(['Financial Times', section, headline, description, image, link])
+
+    print(' --- Finished Financial Times in %s seconds ---' % (time.time() - start))
     return data
 
 
 if __name__ == '__main__':
+    start_time = time.time()
+
     d = []
-    d += wp()
     d += espn()
-    # d += barron()
+    d += ft()
     d += economist()
 
     df = pd.DataFrame(d, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
+    df.to_csv('/Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/news.csv')
 
-    print(df)
-
+    print('\n\n --- Finished Compilation in %s seconds ---' % (time.time() - start_time))
 
 # urls = ["https://www.wsj.com/", "https://www.espn.com/", "https://www.washingtonpost.com/regional/",
 #         "https://www.barrons.com/", "https://www.economist.com/"]
