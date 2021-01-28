@@ -1,13 +1,14 @@
 # Iain Muir
 # iam9ez
 
-from constants import API_KEY, STATE_CODES, S_AND_P, DOW_JONES
+from constants import API_KEY, STATE_CODES, S_AND_P, DOW_JONES, NEWS_LOGOS
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
 import plotly.express as px
 import streamlit as st
 import pandas as pd
+import compiler
 import requests
 import time
 
@@ -48,14 +49,18 @@ def yahoo_finance(endpoint):
     return last, change, pct, color
 
 
-def news(s):
-    return {
-        'Home': compiler.overall(),
-        'Wash Post': compiler.wp(),
-        'ESPN': compiler.espn(),
-        "Barron's": compiler.barron(),
-        'Economist': compiler.economist()
-    }.get(s, 'Failed...')
+def display_news(stories):
+    logo = NEWS_LOGOS[list(stories[0])[1]]
+    st.markdown("<img src='" + logo + "' height='35'/>", unsafe_allow_html=True)
+
+    left, right = st.beta_columns(2)
+    for i, story in enumerate(stories):
+        _, _, section, headline, description, image, link = story
+        col = left if i % 2 == 0 else right
+        # col.markdown("<center><img src='" + news['image'] + "' height='150'/></center>",
+        #              unsafe_allow_html=True)
+        # col.markdown(news['headline'] + " (<a href='" + news['url'] + "'>" + news['source'] + "</a>)",
+        #              unsafe_allow_html=True)
 
 
 def market_news():
@@ -423,38 +428,19 @@ def run():
              "<b><span style='font-size:7pt'> Loonie " + "</span></b><span style='font-size:8pt'>" + cad + "</span>"
     st.markdown(other + "</center>", unsafe_allow_html=True)
 
-#     st.markdown(
-#         """
-#         <style>
-# .button {
-#   border: none;
-#   color: white;
-#   padding: 15px 32px;
-#   text-align: center;
-#   text-decoration: none;
-#   display: inline-block;
-#   font-size: 16px;
-#   margin: 4px 2px;
-#   cursor: pointer;
-# }
-# </style>
-#         """
-#     )
-
     st.markdown('------------------------------------------')
 
-    # col1, col2, col3, col4, col5 = st.beta_columns(5)
-    # home = col1.button('Home')
-    # wp = col2.button('Washington Post')
-    # espn = col3.button('ESPN')
-    # b = col4.button("Barron's")
-    # econ = col5.button('Economist')
-    #
-    # container = st.beta_container()
+    st.write('<style>div.Widget.row-widget.stRadio > div{flex-direction:row;}</style>',
+             unsafe_allow_html=True)
 
-    st.subheader("Overall Market News")
-    market_news2()
+    st.subheader("Market News")
+    compiler.overall()
+    source = st.radio('News Source', ['Home', 'Associated Press', 'ESPN', 'Financial Times', 'Economist'])
+    news_data = pd.read_csv('stockMarket/news.csv')
+    stories = news_data.query('source == "' + source + '"')
+    display_news(stories.values)
     st.markdown('------------------------------------------')
+
     with st.beta_expander('Company News', expanded=False):
         st.subheader("Company News and Analyst Sentiments")
         tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)

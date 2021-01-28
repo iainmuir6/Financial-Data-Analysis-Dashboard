@@ -43,6 +43,14 @@ DOW_JONES = [
     'AMGN'
 ]
 
+NEWS_LOGOS = {
+    'Home': 'https://upload.wikimedia.org/wikipedia/commons/e/e3/CNBC_logo.svg',
+    'Associated Press': 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Associated_Press_logo_2012.svg',
+    'ESPN': 'https://upload.wikimedia.org/wikipedia/commons/2/2f/ESPN_wordmark.svg',
+    'Financial Times': 'https://upload.wikimedia.org/wikipedia/commons/6/68/Financial_Times_masthead.svg',
+    'Economist': 'https://en.wikipedia.org/wiki/The_Economist#/media/File:The_Economist_Logo.svg'
+}
+
 STATE_CODES = {
     'Washington, D.C.': 'DC', 'Mississippi': 'MS', 'Oklahoma': 'OK',
     'Delaware': 'DE', 'Minnesota': 'MN', 'Illinois': 'IL', 'Arkansas': 'AR',
