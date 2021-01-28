@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 import plotly.express as px
 import streamlit as st
 import pandas as pd
-import compiler
 import requests
 import time
 
@@ -51,16 +50,20 @@ def yahoo_finance(endpoint):
 
 def display_news(stories):
     logo = NEWS_LOGOS[list(stories[0])[1]]
-    st.markdown("<img src='" + logo + "' height='35'/>", unsafe_allow_html=True)
+    st.markdown("<center><img src='" + logo + "' height='65'/></center>", unsafe_allow_html=True)
+    st.write('--------------')
 
     left, right = st.beta_columns(2)
     for i, story in enumerate(stories):
-        _, _, section, headline, description, image, link = story
+        _, _, _, headline, _, image, link = story
+        image = str(image)
+
         col = left if i % 2 == 0 else right
-        # col.markdown("<center><img src='" + news['image'] + "' height='150'/></center>",
-        #              unsafe_allow_html=True)
-        # col.markdown(news['headline'] + " (<a href='" + news['url'] + "'>" + news['source'] + "</a>)",
-        #              unsafe_allow_html=True)
+        if image != 'nan':
+            col.markdown("<center><img src='" + image + "' height='150'/></center>",
+                         unsafe_allow_html=True)
+        col.markdown("<center>" + headline + " (<a href='" + link + "'>link</a>)</center>",
+                     unsafe_allow_html=True)
 
 
 def market_news():
@@ -434,7 +437,7 @@ def run():
              unsafe_allow_html=True)
 
     st.subheader("Market News")
-    compiler.overall()
+    # compiler.overall()
     source = st.radio('News Source', ['Home', 'Associated Press', 'ESPN', 'Financial Times', 'Economist'])
     news_data = pd.read_csv('stockMarket/news.csv')
     stories = news_data.query('source == "' + source + '"')
