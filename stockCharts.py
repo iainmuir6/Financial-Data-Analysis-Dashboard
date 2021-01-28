@@ -92,7 +92,7 @@ def create_table(url):
 
 def scrape_statements(base, xml):
     content = requests.get(xml).content
-    soup = BeautifulSoup(content, 'lxml')
+    soup = BeautifulSoup(content, 'html.parser')
     reports = soup.find('myreports').find_all('report')
     master_reports = {}
     other = {}
