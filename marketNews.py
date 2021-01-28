@@ -49,13 +49,19 @@ def yahoo_finance(endpoint):
 
 
 def display_news(stories):
-    logo = NEWS_LOGOS[list(stories[0])[1]]
+    try:
+        logo = NEWS_LOGOS[list(stories[0])[0]]
+    except KeyError:
+        logo = NEWS_LOGOS[list(stories[0])[1]]
     st.markdown("<center><img src='" + logo + "' height='65'/></center>", unsafe_allow_html=True)
     st.write('--------------')
 
     left, right = st.beta_columns(2)
     for i, story in enumerate(stories):
-        _, _, _, headline, _, image, link = story
+        try:
+            _, _, headline, _, image, link = story
+        except ValueError:
+            _, _, _, headline, _, image, link = story
         image = str(image)
 
         col = left if i % 2 == 0 else right
@@ -437,11 +443,21 @@ def run():
              unsafe_allow_html=True)
 
     st.subheader("Market News")
-    # compiler.overall()
     source = st.radio('News Source', ['Home', 'Associated Press', 'ESPN', 'Financial Times', 'Economist'])
-    news_data = pd.read_csv('stockMarket/news.csv')
-    stories = news_data.query('source == "' + source + '"')
-    display_news(stories.values)
+    # news_data = pd.read_csv('stockMarket/news.csv')
+    news_data = {
+        'Home': compiler.home(),
+        'Associated Press': compiler.ap(),
+        'ESPN': compiler.espn(),
+        'Financial Times': compiler.ft(),
+        'Economist': compiler.economist()
+    }.get(source, pd.DataFrame.empty)
+
+    if not news_data.empty:
+        stories = news_data.query('source == "' + source + '"')
+        display_news(stories.values)
+    else:
+        st.write('Problem collecting and displaying news...')
     st.markdown('------------------------------------------')
 
     with st.beta_expander('Company News', expanded=False):

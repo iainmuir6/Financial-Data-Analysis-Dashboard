@@ -18,7 +18,9 @@ def overall():
     data += economist()
 
     news_df = pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
-    news_df.to_csv('/Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/news.csv')
+    # news_df.to_csv('/Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/news.csv')
+
+    return news_df
 
 
 def home():
@@ -43,7 +45,7 @@ def home():
     for news in m_news:
         if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
             data.append(['Home', None, news['headline'], None, news['image'], news['url']])
-    return data
+    return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
 
 def wp():
@@ -110,7 +112,7 @@ def espn():
             continue
 
     # print(' --- Finished ESPN in %s seconds ---' % (time.time() - start))
-    return data
+    return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
 
 def barron():
@@ -158,7 +160,7 @@ def economist():
         data.append(['Economist', section, headline, description, image, link])
 
     # print(' --- Finished Economist in %s seconds ---' % (time.time() - start))
-    return data
+    return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
 
 def ft():
@@ -198,7 +200,7 @@ def ft():
         data.append(['Financial Times', section, headline, description, image, link])
 
     # print(' --- Finished Financial Times in %s seconds ---' % (time.time() - start))
-    return data
+    return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
 
 def ap():
@@ -239,7 +241,7 @@ def ap():
             continue
 
     # print(' --- Finished Associated Press in %s seconds ---' % (time.time() - start))
-    return data
+    return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
 
 if __name__ == '__main__':

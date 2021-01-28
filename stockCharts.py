@@ -44,7 +44,7 @@ def create_table(url):
     # <link rel="stylesheet" href="https://github.com/iainmuir6/stockMarket/blob/master/report.css" type="text/css"/>
 
     page = requests.get(url)
-    soup = BeautifulSoup(page.content, 'lxml')
+    soup = BeautifulSoup(page.content, 'html.parser')
     for tr in soup.find('table').find_all('tr', recursive=False):
         html += '<tr>'
         try:
@@ -334,20 +334,3 @@ if __name__ == '__main__':
     start = time.time()
     run()
     print("     --- Finished in %s seconds ---      " % round(time.time() - start, 2))
-
-
-"""
-<html>
-    <table>
-    <tr>
-        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
-            <b>Stockholders' Equity Statements - Usd ($) $ In Millions</b></th>
-        <th style="background-color:CornflowerBlue;text-align:center;" colspan="2" rowspan="1">
-            <b>Total</b></th>
-        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
-            <b>Common Stock And Paid-In Capital</b></th>
-        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
-            <b>Retained Earnings</b></th>
-        <th style="background-color:CornflowerBlue;text-align:center;" colspan="1" rowspan="1">
-            <b>
-"""
