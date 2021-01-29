@@ -57,20 +57,28 @@ def display_news(stories):
     st.markdown("<center><img src='" + logo + "' height='65'/></center>", unsafe_allow_html=True)
     st.write('--------------')
 
+    no_images = '<ul>'
+
+    i = 0
     left, right = st.beta_columns(2)
-    for i, story in enumerate(stories):
+    for story in stories:
         source, _, headline, _, image, link = story
         image = str(image)
 
         col = left if i % 2 == 0 else right
-        if image != 'nan':
+        if image != 'None':
             col.markdown("<center><img src='" + image + "' height='150'/></center>",
                          unsafe_allow_html=True)
-        elif source != 'ESPN':
-            col.markdown("<center><img src='" + logo + "' height='50'/></center>",
+            col.markdown("<center>" + headline + " (<a href='" + link + "'>link</a>)</center>",
                          unsafe_allow_html=True)
-        col.markdown("<center>" + headline + " (<a href='" + link + "'>link</a>)</center>",
-                     unsafe_allow_html=True)
+            i += 1
+        else:
+            no_images += "<li>" + headline + " (<a href='" + link + "'>link</a>)</li>"
+
+    if no_images != '<ul>':
+        st.subheader('Other Top Stories')
+        st.markdown(no_images + '</ul>', unsafe_allow_html=True)
+
 
 
 def market_news():
@@ -346,9 +354,9 @@ def run():
         color = 'green' if change > 0 else 'red'
 
         cols[i].markdown(
-            "<b><span style='font-size:10pt'>" + name + " (" + ticker + ")</span></b><br><span style='font-size:9pt'> $"
-            + str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>"
-            + str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + "%) </span>",
+            "<b><span style='font-size:10pt'>" + name + " (" + ticker + ")</span></b><br><span style='font-size:8.5pt'>"
+            " $" + str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" +
+            str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + "%) </span>",
             unsafe_allow_html=True
         )
 
@@ -374,7 +382,8 @@ def run():
         )
         i += 1
 
-    cols = st.beta_columns([2, 2, 1, 1, 1])
+    # cols = st.beta_columns([1.5, 1.5, 1, 1, 1])
+    cols = st.beta_columns(5)
     for i, item in enumerate([('%5ETNX/', '10yr Yield'), ('BTC-USD?p=BTC-USD', 'Bitcoin')]):
         endpoint, name = item
         last, change, pct, color = yahoo_finance(endpoint)

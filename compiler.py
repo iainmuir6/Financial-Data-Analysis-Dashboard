@@ -108,7 +108,7 @@ def espn():
                 link = url + story.a['href'][1:]
                 data.append(['ESPN', None, headline, None, None, link])
 
-        except AttributeError:
+        except (Exception, AttributeError):
             continue
 
     # print(' --- Finished ESPN in %s seconds ---' % (time.time() - start))
@@ -184,20 +184,23 @@ def ft():
 
     data = []
     for article in articles:
-        section = article.div.a.text
-        info = article.find('div', class_='o-teaser__heading')
-        headline = info.a.text
-        extension = info.a['href'][1:]
-        link = url + extension
-        story_id = extension[extension.rfind('/') + 1:]
-        description = article.p.text if article.p is not None else None
-
         try:
-            image = list(image_df.query('id == "' + story_id + '"')['link'])[0]
-        except IndexError:
-            image = None
+            section = article.div.a.text
+            info = article.find('div', class_='o-teaser__heading')
+            headline = info.a.text
+            extension = info.a['href'][1:]
+            link = url + extension
+            story_id = extension[extension.rfind('/') + 1:]
+            description = article.p.text if article.p is not None else None
 
-        data.append(['Financial Times', section, headline, description, image, link])
+            try:
+                image = list(image_df.query('id == "' + story_id + '"')['link'])[0]
+            except IndexError:
+                image = None
+
+            data.append(['Financial Times', section, headline, description, image, link])
+        except (Exception, AttributeError):
+            continue
 
     # print(' --- Finished Financial Times in %s seconds ---' % (time.time() - start))
     return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
@@ -221,7 +224,7 @@ def ap():
             continue
 
     if top_stories is None:
-        return None
+        return pd.DataFrame.empty
 
     data = []
     for story in top_stories.find_all('div')[2].find_all('div'):
