@@ -233,7 +233,10 @@ def ap():
                 # section = story.find('a', class_='HubTag') if type_ != 'main' else None
                 headline = story.a.h1.text if type_ == 'main' else story.a.div.text
                 link = url + story.a['href'][1:]
-                image = story.find('img')['src']
+                try:
+                    image = story.find('img')['src']
+                except TypeError:
+                    image = None
                 description = story.find('p').text if type_ == 'main' else None
 
                 data.append(['Associated Press', None, headline, description, image, link])

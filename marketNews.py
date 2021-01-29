@@ -52,56 +52,28 @@ def display_news(stories):
     try:
         logo = NEWS_LOGOS[list(stories[0])[0]]
     except KeyError:
-        logo = NEWS_LOGOS[list(stories[0])[1]]
+        logo = requests.get('https://finnhub.io/api/v1/stock/profile2?symbol=' + list(stories[0])[0] +
+                            '&token=' + API_KEY).json()['logo']
     st.markdown("<center><img src='" + logo + "' height='65'/></center>", unsafe_allow_html=True)
     st.write('--------------')
 
     left, right = st.beta_columns(2)
     for i, story in enumerate(stories):
-        try:
-            _, _, headline, _, image, link = story
-        except ValueError:
-            _, _, _, headline, _, image, link = story
+        source, _, headline, _, image, link = story
         image = str(image)
 
         col = left if i % 2 == 0 else right
         if image != 'nan':
             col.markdown("<center><img src='" + image + "' height='150'/></center>",
                          unsafe_allow_html=True)
+        elif source != 'ESPN':
+            col.markdown("<center><img src='" + logo + "' height='50'/></center>",
+                         unsafe_allow_html=True)
         col.markdown("<center>" + headline + " (<a href='" + link + "'>link</a>)</center>",
                      unsafe_allow_html=True)
 
 
 def market_news():
-    """
-        RESPONSE FORMAT:
-        {
-            "category": str,
-            "datetime": timestamp,
-            "headline": str,
-            "id": int,
-            "image": str (link),
-            "related": str (ticker or blank),
-            "source": str (news company),
-            "summary": str,
-            "url": str (link)
-        },
-    """
-
-    m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + API_KEY).json()
-    text = "<p><ul>"
-    images = "<p style='text-align:center;color:white'/>"
-    for news in m_news:
-        if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
-            images += "<img src='" + news['image'] + "' height='75'/> --"
-            text += "<li><b>" + news['headline'] + "</b> (<a href='" + \
-                    news['url'] + "'>" + news['source'] + "</a>)</li>"
-
-    st.markdown(images + "</p>", unsafe_allow_html=True)
-    st.markdown(text + "</ul></p>", unsafe_allow_html=True)
-
-
-def market_news2():
     """
         RESPONSE FORMAT:
         {
@@ -128,29 +100,6 @@ def market_news2():
                          unsafe_allow_html=True)
 
 
-def market_news3():
-    """
-        RESPONSE FORMAT:
-        {
-            "category": str,
-            "datetime": timestamp,
-            "headline": str,
-            "id": int,
-            "image": str (link),
-            "related": str (ticker or blank),
-            "source": str (news company),
-            "summary": str,
-            "url": str (link)
-        },
-    """
-
-    m_news = requests.get('https://finnhub.io/api/v1/news?category=general&token=' + API_KEY).json()
-    for i, news in enumerate(m_news):
-        if datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
-            st.markdown("<p><img src='" + news['image'] + "' height='75' align='left'/>" + news['headline'] + "</p>",
-                        unsafe_allow_html=True)
-
-
 def company_news(ticker):
     """
         RESPONSE FORMAT:
@@ -169,24 +118,19 @@ def company_news(ticker):
     c_news = requests.get('https://finnhub.io/api/v1/company-news?symbol=' + ticker +
                           '&from=' + str((date - timedelta(days=7))) + '&to=' + str(date) +
                           '&token=' + API_KEY).json()
-    text = "<p><ul>"
-    images = "<p style='text-align:center;color:white'/>"
+    data = []
     headlines = []
     for news in c_news:
         if news['headline'] in headlines or 'http' in news['source']:
             continue
         elif datetime.fromtimestamp(news['datetime']).date() == datetime.today().date():
-            images += "<img src='" + news['image'] + "' height='50'/> --"
-            text += "<li><b>" + news['headline'] + "</b> (<a href='" + \
-                    news['url'] + "'>" + news['source'].title() + "</a>)</li>"
+            data.append([ticker, None, news['headline'], None, news['image'], news['url']])
             headlines.append(news['headline'])
 
-    if len(text) == 7 and len(images) == 42:
-        st.markdown("<center> No Company News! </center>", unsafe_allow_html=True)
-        return
+    if len(data) == 0:
+        return pd.DataFrame.empty
 
-    st.markdown(images + "</p>", unsafe_allow_html=True)
-    st.markdown(text + "</ul></p>", unsafe_allow_html=True)
+    return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
 
 def analyst_sentiments(ticker):
@@ -380,33 +324,39 @@ def run():
     st.markdown("<h1 style='text-align:center;'> Market News </h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'> Today's Date: " + datetime.today().date().strftime("%B %d, %Y") +
                 "</h3>", unsafe_allow_html=True)
+    st.markdown('------------------------------------------')
 
-    indices = '<center>'
-    for item in [('%5EGSPC', 'S&P 500'), ('%5EDJI', "Dow Jones"), ('%5EIXIC', 'Nasdaq'), ('%5ERUT', 'Russell 2000')]:
-        endpoint, i = item
+    cols = st.beta_columns(4)
+    for i, item in enumerate([('%5EGSPC', 'S&P 500'), ('%5EDJI', "Dow Jones"),
+                              ('%5EIXIC', 'Nasdaq'), ('%5ERUT', 'Russell 2000')]):
+        endpoint, index = item
         last, change, pct, color = yahoo_finance(endpoint)
-        indices += "<b><span style='font-size:6.5pt'>" + i + "</span></b><span style='font-size:7.5pt'> $" + last + \
-                   "</span><span style='font-size:6.5pt;color:" + color + "'> " + change + " " + pct + " </span>"
-    st.markdown(indices + '</center>', unsafe_allow_html=True)
+        cols[i].markdown(
+            "<b><span style='font-size:12pt'>" + index + "</span></b><span style='font-size:9pt'> <br> $" +
+            last + "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + " </span>",
+            unsafe_allow_html=True
+        )
 
-    faang = '<center>'
-    for ticker in ['FB', 'AAPL', 'AMZN', 'NFLX', 'GOOG']:
+    cols = st.beta_columns(5)
+    for i, company in enumerate([('Facebook', 'FB'), ('Apple', 'AAPL'), ('Amazon', 'AMZN'),
+                                ('Netflix', 'NFLX'), ('Google', 'GOOG')]):
+        name, ticker = company
         quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
         change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
         color = 'green' if change > 0 else 'red'
 
-        faang += "<b><span style='font-size:7pt'>" + ticker + "</span></b><span style='font-size:8pt'> $" + \
-                 str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>" + \
-                 str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + \
-                 "%) </span>"
-    st.markdown(faang + '</center>', unsafe_allow_html=True)
+        cols[i].markdown(
+            "<b><span style='font-size:10pt'>" + name + " (" + ticker + ")</span></b><br><span style='font-size:9pt'> $"
+            + str(round(quote['c'], 2)) + "</span> <span style='font-size:7pt;color:" + color + "'>"
+            + str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) + "%) </span>",
+            unsafe_allow_html=True
+        )
 
     url = 'https://money.cnn.com/data/commodities/'
     page = requests.get(url=url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
-    commodities = '<center>'
-
+    i = 0
     for commodity in soup.find_all('tr', class_='commBotRow'):
         c = commodity.td.strong.text
         if c.strip() not in ['Oil  (Light Crude)', 'Gold', 'Silver', 'Corn', "Wheat"]:
@@ -416,26 +366,51 @@ def run():
         change = commodity.find('td', class_='cnncol5').text
         pct = commodity.find('td', class_='cnncol6').text
         color = 'green' if "+" in change else 'red'
-        commodities += "<b><span style='font-size:7pt'>" + c + "</span></b><span style='font-size:8pt'> $" + last + \
-                       "</span><span style='font-size:7pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>"
-    st.markdown(commodities + '</center>', unsafe_allow_html=True)
 
-    other = '<center>'
-    for item in [('%5ETNX/', '10yr Yield'), ('BTC-USD?p=BTC-USD', 'Bitcoin')]:
-        endpoint, i = item
+        cols[i].markdown(
+            "<b><span style='font-size:12pt'>" + c + "</span></b><span style='font-size:8.5pt'><br> $" + last +
+            "</span><span style='font-size:6.5pt;color:" + color + "'> " + change + " (" + pct + ")\n </span>",
+            unsafe_allow_html=True
+        )
+        i += 1
+
+    cols = st.beta_columns([2, 2, 1, 1, 1])
+    for i, item in enumerate([('%5ETNX/', '10yr Yield'), ('BTC-USD?p=BTC-USD', 'Bitcoin')]):
+        endpoint, name = item
         last, change, pct, color = yahoo_finance(endpoint)
-        other += "<b><span style='font-size:7pt'>" + i + "</span></b><span style='font-size:8pt'> $" + last + \
-                 "</span><span style='font-size:7pt;color:" + color + "'> " + change + " " + pct + "\n </span>"
+        cols[i].markdown(
+            "<b><span style='font-size:12pt'>" + name + "</span></b><span style='font-size:8.5pt'><br> $" + last +
+            "</span><span style='font-size:6.5pt;color:" + color + "'> " + change + " " + pct + "\n </span>",
+            unsafe_allow_html=True
+        )
 
-    forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=' + API_KEY).json()['quote']
-    eur, gbp, jpy, chf, cad = str(round(forex['EUR'], 2)), str(round(forex['GBP'], 2)), str(round(forex['JPY'], 2)), \
-                              str(round(forex['CHF'], 2)), str(round(forex['CAD'], 2))
-    other += "<b><span style='font-size:7pt'> Euro </span></b><span style='font-size:8pt'>" + eur + " </span>" \
-             "<b><span style='font-size:7pt'> Pound " + "</span></b><span style='font-size:8pt'>" + gbp + "</span>" \
-             "<b><span style='font-size:7pt'> Yen " + "</span></b><span style='font-size:8pt'>" + jpy + "</span>" \
-             "<b><span style='font-size:7pt'> Franc " + "</span></b><span style='font-size:8pt'>" + chf + "</span>" \
-             "<b><span style='font-size:7pt'> Loonie " + "</span></b><span style='font-size:8pt'>" + cad + "</span>"
-    st.markdown(other + "</center>", unsafe_allow_html=True)
+    url = 'https://finance.yahoo.com/currencies/'
+    page = requests.get(url=url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    forex = soup.find('tbody').find_all('tr')
+
+    i = 2
+    for currency in forex:
+        _, name, price, change, pct, _, _ = currency.find_all('td')
+        name, price, change, pct = name.text, price.text, change.text, pct.text
+        if name in ['EUR/USD', 'USD/JPY', 'GBP/USD']:
+            color = 'green' if "+" in change else 'red'
+            cols[i].markdown("<b><span style='font-size:12pt'>" + name + "</span></b><span style='font-size:8.5pt'><br>"
+                             "$" + price + "</span><span style='font-size:6.5pt;color:" + color + "'> " + pct +
+                             "\n </span>", unsafe_allow_html=True)
+            i += 1
+
+    # forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=' + API_KEY).json()['quote']
+    # eur, gbp, jpy, chf = str(round(forex['EUR'], 2)), str(round(forex['GBP'], 2)), str(round(forex['JPY'], 2)), \
+    #                      str(round(forex['CHF'], 2))
+    # cols[2].markdown("<b><span style='font-size:7pt'> Euro </span></b><span style='font-size:8pt'>" + eur + " </span>",
+    #                  unsafe_allow_html=True)
+    # cols[3].markdown("<b><span style='font-size:7pt'> Pound </span></b><span style='font-size:8pt'>" + gbp + " </span>",
+    #                  unsafe_allow_html=True)
+    # cols[4].markdown("<b><span style='font-size:7pt'> Yen </span></b><span style='font-size:8pt'>" + jpy + " </span>",
+    #                  unsafe_allow_html=True)
+    # cols[5].markdown("<b><span style='font-size:7pt'> Franc </span></b><span style='font-size:8pt'>" + chf + " </span>",
+    #                  unsafe_allow_html=True)
 
     st.markdown('------------------------------------------')
 
@@ -467,7 +442,11 @@ def run():
         if tick != '--- Select a Company ---':
             tick = tick[tick.rfind('-') + 2:] if tick != '-- Other --' else st.text_input("Input Ticker:")
             if tick:
-                company_news(tick)
+                news_data = company_news(tick)
+                if not news_data.empty:
+                    display_news(news_data.values)
+                else:
+                    st.markdown("<center> No Company News! </center>", unsafe_allow_html=True)
                 st.markdown('------------------------------------------')
                 analyst_sentiments(tick)
     with st.beta_expander('Earnings Calendar', expanded=False):

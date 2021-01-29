@@ -4,12 +4,11 @@ Iain Muir, iam9ez
 PROJECT DESCRIPTION
 
 TODO:
-    • Order Files with Functions
     • Insert Exceptions (everywhere)
         • Custom Error Message on Streamlit
     • Documentation
     • Display Progress for Loading
-    • Caching
+    • Symbol Lookup
 
 streamlit run /Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/market_app.py
 /Users/iainmuir/PycharmProjects/Desktop/streamlitApp/stockMarket/market_app.py
