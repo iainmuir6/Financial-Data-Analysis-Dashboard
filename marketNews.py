@@ -80,7 +80,6 @@ def display_news(stories):
         st.markdown(no_images + '</ul>', unsafe_allow_html=True)
 
 
-
 def market_news():
     """
         RESPONSE FORMAT:
@@ -136,7 +135,7 @@ def company_news(ticker):
             headlines.append(news['headline'])
 
     if len(data) == 0:
-        return pd.DataFrame.empty
+        return pd.DataFrame()
 
     return pd.DataFrame(data, columns=['source', 'section', 'headline', 'description', 'image', 'link'])
 
@@ -409,18 +408,6 @@ def run():
                              "\n </span>", unsafe_allow_html=True)
             i += 1
 
-    # forex = requests.get('https://finnhub.io/api/v1/forex/rates?base=USD&token=' + API_KEY).json()['quote']
-    # eur, gbp, jpy, chf = str(round(forex['EUR'], 2)), str(round(forex['GBP'], 2)), str(round(forex['JPY'], 2)), \
-    #                      str(round(forex['CHF'], 2))
-    # cols[2].markdown("<b><span style='font-size:7pt'> Euro </span></b><span style='font-size:8pt'>" + eur + " </span>",
-    #                  unsafe_allow_html=True)
-    # cols[3].markdown("<b><span style='font-size:7pt'> Pound </span></b><span style='font-size:8pt'>" + gbp + " </span>",
-    #                  unsafe_allow_html=True)
-    # cols[4].markdown("<b><span style='font-size:7pt'> Yen </span></b><span style='font-size:8pt'>" + jpy + " </span>",
-    #                  unsafe_allow_html=True)
-    # cols[5].markdown("<b><span style='font-size:7pt'> Franc </span></b><span style='font-size:8pt'>" + chf + " </span>",
-    #                  unsafe_allow_html=True)
-
     st.markdown('------------------------------------------')
 
     st.write('<style>div.Widget.row-widget.stRadio > div{flex-direction:row;}</style>',
@@ -435,7 +422,7 @@ def run():
         'ESPN': compiler.espn(),
         'Financial Times': compiler.ft(),
         'Economist': compiler.economist()
-    }.get(source, pd.DataFrame.empty)
+    }.get(source, pd.DataFrame())
 
     if not news_data.empty:
         stories = news_data.query('source == "' + source + '"')
@@ -447,7 +434,6 @@ def run():
     with st.beta_expander('Company News', expanded=False):
         st.subheader("Company News and Analyst Sentiments")
         tick = st.selectbox("Input Company ('Other' for small caps):", S_AND_P, index=0)
-        st.markdown('------------------------------------------')
         if tick != '--- Select a Company ---':
             tick = tick[tick.rfind('-') + 2:] if tick != '-- Other --' else st.text_input("Input Ticker:")
             if tick:

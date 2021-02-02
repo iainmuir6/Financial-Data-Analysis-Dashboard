@@ -1,9 +1,9 @@
 # Iain Muir
 # iam9ez
 
+from constants import API_KEY, MS_KEY, S_AND_P
 from plotly.subplots import make_subplots
 from datetime import datetime, timedelta
-from constants import API_KEY, S_AND_P
 import plotly.graph_objects as go
 from bs4 import BeautifulSoup
 import streamlit as st
@@ -129,6 +129,7 @@ def get_reports(ticker):
 
 def run():
     """
+    # TODO Organize into functions
 
     :return
     """
@@ -139,195 +140,202 @@ def run():
 
     if ticker != '--- Select a Company ---':
         ticker = ticker[ticker.rfind('-') + 2:] if ticker != '-- Other --' else st.text_input("Input Ticker:")
-        quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
-        change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
-        color = 'green' if change > 0 else 'red'
+        if ticker != '-- Other --':
+            quote = requests.get('https://finnhub.io/api/v1/quote?symbol=' + ticker + '&token=' + API_KEY).json()
+            change = round(((quote['c'] - quote['pc']) / quote['pc']) * 100, 2)
+            color = 'green' if change > 0 else 'red'
 
-        st.markdown("<center> <h3> Current Price: <span style='font-size:24pt'> $" +
-                    str(round(quote['c'], 2)) + "</span> <span style='font-size:14pt;color: " + color + "'>" +
-                    str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) +
-                    "%) </span></h3> </center>", unsafe_allow_html=True)
-        st.markdown("<center> Prev. Close: <b> $" + str(round(quote['pc'], 2)) + "</b>  |   Open: <b> $" +
-                    str(round(quote['o'], 2)) + "</b>   |    High: <b> $" + str(round(quote['h'], 2)) +
-                    "</b>  |   Low: <b> $" + str(round(quote['l'], 2)) + "</b></center>", unsafe_allow_html=True)
-        st.write("----------------------------")
+            st.markdown("<center> <h3> Current Price: <span style='font-size:24pt'> $" +
+                        str(round(quote['c'], 2)) + "</span> <span style='font-size:14pt;color: " + color + "'>" +
+                        str(round(quote['c'] - quote['pc'], 2)) + " (" + ('+' if change > 0 else "") + str(change) +
+                        "%) </span></h3> </center>", unsafe_allow_html=True)
+            st.markdown("<center> Prev. Close: <b> $" + str(round(quote['pc'], 2)) + "</b>  |   Open: <b> $" +
+                        str(round(quote['o'], 2)) + "</b>   |    High: <b> $" + str(round(quote['h'], 2)) +
+                        "</b>  |   Low: <b> $" + str(round(quote['l'], 2)) + "</b></center>", unsafe_allow_html=True)
+            st.write("----------------------------")
 
-        s = datetime(datetime.today().year - 1, 1, 1)
-        e = datetime.today()
+            params = {
+                'access_key': MS_KEY,
+                'symbols': ticker
+            }
 
-        df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
-                                       'from=' + str(int(s.timestamp())) +
-                                       '&to=' + str(int(e.timestamp())) +
-                                       '&token=' + API_KEY).json()).drop(axis=1, labels='s')
-        df['t'] = [datetime.fromtimestamp(x) for x in df['t']]
+            data = requests.get('http://api.marketstack.com/v1/intraday', params=params).json()['data']
+            # TODO Intraday
 
-        fig = make_subplots(
-            specs=[[{"secondary_y": True}]]
-        )
-        fig.add_trace(
-            go.Candlestick(
-                x=df['t'].dt.date,
-                open=df['o'],
-                high=df['h'],
-                low=df['l'],
-                close=df['c'],
-                name='Candlestick'
-            ),
-            secondary_y=True
-        )
-        fig.add_trace(
-            go.Bar(
-                x=df['t'].dt.date,
-                y=df['v'],
-                marker={'color': 'rgb(0,0,0)'},
-                name='Volume'
-            ),
-            secondary_y=False
-        )
-        fig.update_xaxes(
-            rangeslider_visible=True,
-            rangeselector=dict(
-                buttons=list([
-                    dict(count=1, label="1m", step="month", stepmode="backward"),
-                    dict(count=6, label="6m", step="month", stepmode="backward"),
-                    dict(count=1, label="YTD", step="year", stepmode="todate"),
-                    dict(count=1, label="1y", step="year", stepmode="backward"),
-                    dict(step="all")
-                ])
-            ),
-            rangebreaks=[
-                dict(bounds=["sat", "sun"])
-            ],
-            ticklabelmode="period"
-        )
-        fig.update_layout(
-            title='Historic Stock Data for ' + ticker
-        )
-        fig.layout.yaxis2.showgrid = False
+            # st.write("----------------------------")
 
-        st.subheader("Candlestick Data")
-        st.plotly_chart(fig)
+            with st.beta_expander('Candlestick Data'):
+                st.subheader("Candlestick Data")
+                s = datetime(datetime.today().year - 1, 1, 1)
+                e = datetime.today()
+                df = pd.DataFrame(requests.get('https://finnhub.io/api/v1/stock/candle?symbol=' + ticker + '&resolution=D&' +
+                                               'from=' + str(int(s.timestamp())) +
+                                               '&to=' + str(int(e.timestamp())) +
+                                               '&token=' + API_KEY).json()).drop(axis=1, labels='s')
+                df['t'] = [datetime.fromtimestamp(x) for x in df['t']]
 
-        st.subheader("Financials Summary")
+                fig = make_subplots(
+                    specs=[[{"secondary_y": True}]]
+                )
+                fig.add_trace(
+                    go.Candlestick(
+                        x=df['t'].dt.date,
+                        open=df['o'],
+                        high=df['h'],
+                        low=df['l'],
+                        close=df['c'],
+                        name='Candlestick'
+                    ),
+                    secondary_y=True
+                )
+                fig.add_trace(
+                    go.Bar(
+                        x=df['t'].dt.date,
+                        y=df['v'],
+                        marker={'color': 'rgb(0,0,0)'},
+                        name='Volume'
+                    ),
+                    secondary_y=False
+                )
+                fig.update_xaxes(
+                    rangeslider_visible=True,
+                    rangeselector=dict(
+                        buttons=list([
+                            dict(count=1, label="1m", step="month", stepmode="backward"),
+                            dict(count=6, label="6m", step="month", stepmode="backward"),
+                            dict(count=1, label="YTD", step="year", stepmode="todate"),
+                            dict(count=1, label="1y", step="year", stepmode="backward"),
+                            dict(step="all")
+                        ])
+                    ),
+                    rangebreaks=[
+                        dict(bounds=["sat", "sun"])
+                    ],
+                    ticklabelmode="period"
+                )
+                fig.update_layout(
+                    title='Historic Stock Data for ' + ticker
+                )
+                fig.layout.yaxis2.showgrid = False
+                st.plotly_chart(fig)
 
-        basic_financials = requests.get('https://finnhub.io/api/v1/stock/metric?symbol=' + ticker +
-                                        '&metric=all&token=' + API_KEY).json()
-        if bool(basic_financials['series']):
-            st.markdown('<u> Basic Financials </u>', unsafe_allow_html=True)
+            st.subheader("Financials Summary")
 
-            date = list(basic_financials['series']['annual'].values())[0][0]['period']
-            if datetime.today() - datetime.strptime(date, '%Y-%m-%d') < timedelta(days=200):
-                st.write("Reported Date: " + date)
-            else:
-                st.warning("Reported Date: " + date)
+            basic_financials = requests.get('https://finnhub.io/api/v1/stock/metric?symbol=' + ticker +
+                                            '&metric=all&token=' + API_KEY).json()
+            if bool(basic_financials['series']):
+                st.markdown('<u> Basic Financials </u>', unsafe_allow_html=True)
 
-            df1 = pd.DataFrame(
-                {
-                    'Metric': [k for k, v in basic_financials['series']['annual'].items() if len(v) != 0],
-                    'Value': [round(v[0]['v'], 4) for v in basic_financials['series']['annual'].values() if len(v) != 0]
-                }
-            )
-            df2 = pd.DataFrame(
-                {
-                    'Metric': [k for k in basic_financials['metric'].keys()],
-                    'Value': [v for v in basic_financials['metric'].values()]
-                }
-            )
+                date = list(basic_financials['series']['annual'].values())[0][0]['period']
+                if datetime.today() - datetime.strptime(date, '%Y-%m-%d') < timedelta(days=200):
+                    st.write("Reported Date: " + date)
+                else:
+                    st.warning("Reported Date: " + date)
 
-            df = df1.append(df2).reset_index().drop('index', axis=1)
-            st.dataframe(df)
-            selection = st.selectbox("Select Metric:", df['Metric'].values)
-            val = df['Value'][list(df['Metric'].values).index(selection)]
+                df1 = pd.DataFrame(
+                    {
+                        'Metric': [k for k, v in basic_financials['series']['annual'].items() if len(v) != 0],
+                        'Value': [round(v[0]['v'], 4) for v in basic_financials['series']['annual'].values() if len(v) != 0]
+                    }
+                )
+                df2 = pd.DataFrame(
+                    {
+                        'Metric': [k for k in basic_financials['metric'].keys()],
+                        'Value': [v for v in basic_financials['metric'].values()]
+                    }
+                )
+
+                df = df1.append(df2).reset_index().drop('index', axis=1)
+                st.dataframe(df)
+                selection = st.selectbox("Select Metric:", df['Metric'].values)
+                val = df['Value'][list(df['Metric'].values).index(selection)]
+
+                try:
+                    val = val.values[0]
+                except AttributeError:
+                    val = val
+                st.write(selection + ": " + str(val))
+
+                if st.checkbox("Show Formulas"):
+                    st.markdown(
+                        "* **Cash Ratio:** (Current Assets - Inventory) / Current Liabilities \n"
+                        "* **Current Ratio:** Current Assets / Current Liabilities \n"
+                        "* **EBIT Per Share:** EBIT / Average Number of Shares Outstanding \n"
+                        "* **EPS:** Net Income / Average Number of Shares Outstanding \n"
+                        "* **Gross Margin:** (Total Revenue - Cost of Goods Sold) / Total Revenue \n"
+                        "* **LT Debt to Total Asset:** LT Debt / Total Assets \n"
+                        "* **LT Debt to Total Capital:** LT Debt / (LT Debt + Total Equity) \n"
+                        "* **LT Debt to Total Equity:** LT Debt / Total Equity \n"
+                        "* **Net Debt to Total Capital:** (ST+LT Debt - Cash) / ((ST+LT Debt - Cash)"
+                        " + Total Equity) \n"
+                        "* **Net Debt to Total Equity:** (ST Debt + LT Debt - Cash) / Total Equity \n"
+                        "* **Net Margin:** Net Income / Total Revenue \n"
+                        "* **Operating Margin:** Operating Income (EBIT) / Total Revenue \n"
+                        "* **Pretax Margin:** Pretax Income (EBT) / Total Revenue \n"
+                        "* **Sales Per Share:** Total Revenue / Average Number of Shares Outstanding  \n"
+                        "* **SGA to Sales:** SGA Expense / Total Revenue \n"
+                        "* **Debt/Equity Ratio:** (ST Debt + LT Debt + Other Fixed Payments) / Total Equity \n"
+                        "* **Total Debt to Total Asset:** (ST Debt + LT Debt + Other Fixed Payments) / Total Assets \n"
+                        "* **Total Debt to Total Capital:** Total Debt / (Total Debt + Total Equity) \n"
+                    )
+
+                st.write("----------------------------")
+
+            st.markdown('<u> Financial Statements </u>', unsafe_allow_html=True)
+
+            r, o = get_reports(ticker)
+
+            statement = st.radio("",
+                                 ["Income Statement", "Balance Sheet", "Statement of Cash Flows",
+                                  "Statement of Shareholder's Equity", "Comprehensive Income Statement"])
 
             try:
-                val = val.values[0]
-            except AttributeError:
-                val = val
-            st.write(selection + ": " + str(val))
+                url = r[statement]
+                st.markdown("<h3 style='text-align:center;color:black'><a href='" + url + "'>" + statement + "</a></h3>",
+                            unsafe_allow_html=True)
+                html, footnote = create_table(url)
+                st.write(html, unsafe_allow_html=True)
+                if footnote != '':
+                    st.markdown('*' + footnote.strip() + '*')
+                st.write("----------------------------")
+            except KeyError:
+                st.error('Unable to locate the ' + statement + '. Check the links below...')
 
-            if st.checkbox("Show Formulas"):
-                st.markdown(
-                    "* **Cash Ratio:** (Current Assets - Inventory) / Current Liabilities \n"
-                    "* **Current Ratio:** Current Assets / Current Liabilities \n"
-                    "* **EBIT Per Share:** EBIT / Average Number of Shares Outstanding \n"
-                    "* **EPS:** Net Income / Average Number of Shares Outstanding \n"
-                    "* **Gross Margin:** (Total Revenue - Cost of Goods Sold) / Total Revenue \n"
-                    "* **LT Debt to Total Asset:** LT Debt / Total Assets \n"
-                    "* **LT Debt to Total Capital:** LT Debt / (LT Debt + Total Equity) \n"
-                    "* **LT Debt to Total Equity:** LT Debt / Total Equity \n"
-                    "* **Net Debt to Total Capital:** (ST+LT Debt - Cash) / ((ST+LT Debt - Cash)"
-                    " + Total Equity) \n"
-                    "* **Net Debt to Total Equity:** (ST Debt + LT Debt - Cash) / Total Equity \n"
-                    "* **Net Margin:** Net Income / Total Revenue \n"
-                    "* **Operating Margin:** Operating Income (EBIT) / Total Revenue \n"
-                    "* **Pretax Margin:** Pretax Income (EBT) / Total Revenue \n"
-                    "* **Sales Per Share:** Total Revenue / Average Number of Shares Outstanding  \n"
-                    "* **SGA to Sales:** SGA Expense / Total Revenue \n"
-                    "* **Debt/Equity Ratio:** (ST Debt + LT Debt + Other Fixed Payments) / Total Equity \n"
-                    "* **Total Debt to Total Asset:** (ST Debt + LT Debt + Other Fixed Payments) / Total Assets \n"
-                    "* **Total Debt to Total Capital:** Total Debt / (Total Debt + Total Equity) \n"
-                )
+            other_report = st.selectbox("Other Filed Reports:", list(o.keys()))
+            st.write("Link: " + o[other_report])
 
             st.write("----------------------------")
 
-        st.markdown('<u> Financial Statements </u>', unsafe_allow_html=True)
+            st.subheader("SEC Filings")
+            s = datetime.today().date()
+            e = s - timedelta(days=365)
+            ten_k = ''
+            ten_q = ''
+            eight_k = ''
 
-        r, o = get_reports(ticker)
+            filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + API_KEY).json()
 
-        statement = st.radio("",
-                             ["Income Statement", "Balance Sheet", "Statement of Cash Flows",
-                              "Statement of Shareholder's Equity", "Comprehensive Income Statement"])
+            for f in filings:
+                if datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").date() < e:
+                    break
+                if f['form'] == '10-K':
+                    ten_k += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
+                             " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
+                elif f['form'] == '10-Q':
+                    ten_q += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
+                             " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
+                elif f['form'] == '8-K':
+                    eight_k += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
+                               " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
+                else:
+                    continue
 
-        url = r[statement]
-        st.markdown("<h3 style='text-align:center;color:black'><a href='" + url + "'>" + statement + "</a></h3>",
-                    unsafe_allow_html=True)
-        html, footnote = create_table(url)
-        st.write(html, unsafe_allow_html=True)
-        if footnote != '':
-            st.markdown('*' + footnote.strip() + '*')
-        st.write("----------------------------")
-
-        # page = requests.get(url)
-        # soup = BeautifulSoup(page.content, 'lxml')
-        # for a in soup.findAll('a'):
-        #     a.replaceWithChildren()
-        # st.write(soup.find('table'), unsafe_allow_html=True)
-
-        other_report = st.selectbox("Other Filed Reports:", list(o.keys()))
-        st.write("Link: " + o[other_report])
-
-        st.write("----------------------------")
-
-        st.subheader("SEC Filings")
-        s = datetime.today().date()
-        e = s - timedelta(days=365)
-        ten_k = ''
-        ten_q = ''
-        eight_k = ''
-
-        filings = requests.get("https://finnhub.io/api/v1/stock/filings?symbol=" + ticker + "&token=" + API_KEY).json()
-
-        for f in filings:
-            if datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").date() < e:
-                break
-            if f['form'] == '10-K':
-                ten_k += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
-                         " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
-            elif f['form'] == '10-Q':
-                ten_q += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
-                         " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
-            elif f['form'] == '8-K':
-                eight_k += "* " + datetime.strptime(f['filedDate'], "%Y-%m-%d %H:%M:%S").strftime('%b %m, %Y') + \
-                           " – [" + f['form'] + "](" + f['reportUrl'] + ") \n"
-            else:
-                continue
-
-        st.markdown('<u> Annual Reports </u>', unsafe_allow_html=True)
-        st.write(ten_k)
-        st.markdown('<u> Quarterly Reports </u>', unsafe_allow_html=True)
-        st.write(ten_q)
-        st.markdown('<u> Monthly Reports </u>', unsafe_allow_html=True)
-        st.write(eight_k)
+            st.markdown('<u> Annual Reports </u>', unsafe_allow_html=True)
+            st.write(ten_k)
+            st.markdown('<u> Quarterly Reports </u>', unsafe_allow_html=True)
+            st.write(ten_q)
+            st.markdown('<u> Monthly Reports </u>', unsafe_allow_html=True)
+            st.write(eight_k)
 
 
 if __name__ == '__main__':
