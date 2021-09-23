@@ -8,7 +8,8 @@ releases
 * **Stock and Options Trading** – visualize company performance or pull option chain data
 * **Technical Indicators** – analyze a company or index using trend indicators, mean reversion, relative strength, 
 and volume and momentum metric 
-        
+
+Link to the [website](https://share.streamlit.io/iainmuir6/stockMarket/master/market_app.py).
         
 Powered by [Streamlit](https://docs.streamlit.io/en/stable/index.html). See the 
 [documentation](https://docs.streamlit.io/en/stable/api.html) for more details on its application. Installation:
@@ -48,7 +49,7 @@ response = requests.get('https://finnhub.io/api/v1/<ENDPOINT>?
            ).json()
 ```
  
-Dashboard is solely programmed and maintained by **Iain A. Muir**; he is currently a third-year student at the 
+Dashboard is solely programmed and maintained by **Iain A. Muir**; he is currently a fourth-year student at the 
 University of Virginia studying Finance and Information Technology.
 * LinkedIn: [Iain Muir](https://www.linkedin.com/in/iain-muir-b37718164/)
 * Email: iam9ez@virginia.edu 
